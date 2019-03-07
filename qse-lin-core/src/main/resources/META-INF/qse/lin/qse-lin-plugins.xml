@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qse-lin-plugins xmlns="http://namespaces.github.com/jochenw/qse/lin/core/plugins/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://namespaces.github.com/jochenw/qse/lin/core/plugins/1.0.0 ../../com/github/jochenw/qse/lin/core/api/qse-lin-plugins.xsd ">
+  <plugin type="family" id="ASLV2" name="Apache License, Version 2">
+    <description>
+      The Apache License is recognised by the Open Source Initiative as a popular and widely deployed licence with a
+      strong community. All of The Apache Software Foundation’s projects, including the Apache HTTP Server project
+      whose software powers more than half of the Internet’s web servers, use this licence. Consequently the licence
+      is widely deployed even though it is used by only about two percent of the open source-licensed projects on
+      the software repository Sourceforge. It is an interesting licence to compare with the Berkeley Software
+      Distribution (BSD) licence, which it resembles in some ways.
+      The license itself can be read at http://www.opensource.org/licenses/apache2.0.php.
+    </description>
+  </plugin>
+  <plugin type="license" id="Apache-2.0" familyId="ASLV2" name="Apache License, Version 2"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.PatternBasedMatcher" id="Apache-2.0">
+    <property name="patterns">Licensed under the Apache License, Version 2.0 (the "License")&#10;http://www.apache.org/licenses/LICENSE-2.0</property>
+  </plugin>
+
+  <!--  The GNU General Public License, version 3 -->
+  <plugin type="family" id="GPLV3" name="GNU General Public License, Version 3">
+    <description>
+      The GNU General Public License v3 (GPL v3 for short) is the next version of the extremely popular free and open
+      source licence the GPL v2. It updates its predecessor to reflect the changes that have taken place in the IT
+      world over the sixteen years that separate them.
+      The licence itself can be read at http://www.opensource.org/licenses/GPL-3.0.
+    </description>
+  </plugin>
+  <plugin type="license" id="GPL-3.0" familyId="GPLV3" name="GNU General Public License, Version 3"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="GPL-3.0">
+    <property name="text1">
+      This program is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+    </property>
+  </plugin>
+
+  <!--  The GNU General Public License, version 2 -->
+  <plugin type="family" id="GPLV2" name="GNU General Public License, Version 2">
+    <description>
+      The GNU General Public License v2 .(GPL v2 for short) is the most commonly used open source licence. Approximately
+      70% of the projects in the software repository Sourceforge use the GPL v2. The licence itself can be read at
+      http://www.opensource.org/licenses/gpl-license.php.
+    </description>
+  </plugin>
+  <plugin type="license" id="GPL-2.0" familyId="GPLV2" name="GNU General Public License, Version 2"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="GPL-2.0">
+    <property name="text1">
+      This program is free software; you can redistribute it and/or
+      modify it under the terms of the GNU General Public License
+      as published by the Free Software Foundation; either version 2
+      of the License, or (at your option) any later version."
+    </property>
+  </plugin>
+
+  <!-- The GNU General Public License, version 1 -->
+  <plugin type="family" id="GPLV1" name="GNU General Public License, Version 1">
+    <description>
+      The GNU General Public License v1 .(GPL v1 for short) is the most commonly used open source license. Approximately
+      70% of the projects in the software repository Sourceforge use the GPL v2. The license itself can be read at
+      http://www.opensource.org/licenses/gpl-license.php.
+    </description>
+  </plugin>
+
+  <plugin type="license" id="GPL-1.0" familyId="GPLV1" name="GNU General Public License, Version 1"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="GPL-1.0">
+    <property name="text1">
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; either version 1, or (at your option)
+       any later version.
+    </property>
+  </plugin>
+
+  <!-- The MIT License -->
+  <plugin type="family" id="MIT" name="The MIT License">
+    <description>
+      The MIT License is a permissive free software license originating
+      at the Massachusetts Institute of Technology (MIT). As a
+      permissive license, it puts only very limited restriction
+      on reuse and has, therefore, an excellent license compatibility.
+      The MIT license permits reuse within proprietary software
+      provided that all copies of the licensed software include
+      a copy of the MIT License terms and the copyright notice.
+      The MIT license is also compatible with many copyleft licenses,
+      such as the GNU General Public License (GPL);
+      MIT licensed software can be integrated into GPL software,
+      but not the other way around.
+    </description>
+  </plugin>
+  <plugin type="license" id="MIT" familyId="MIT" name="The MIT License"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="MIT">
+    <property name="text1">
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation
+      files (the "Software"), to deal in the Software without
+      restriction, including without limitation the rights to use,
+      copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software, and to permit persons
+      to whom the Software is furnished to do so, subject to the
+      following conditions:
+    </property>
+    <property name="text2">
+      The above copyright notice and this permission notice shall
+      be included in all copies or substantial portions of the
+      Software.
+    </property>
+    <property name="text3">
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+      KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+      WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+      PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+      OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+      OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+      OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+      THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    </property>
+  </plugin>
+
+  <!--  The OASIS License  -->
+  <plugin type="family" id="OASIS" name="OASIS Open License">
+    <description>
+      The OASIS Open License.
+    </description>
+  </plugin>
+  <plugin type="license" id="OASIS" familyId="OASIS" name="OASIS Open License"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="OASIS">
+    <property name="copyright">.*Copyright\s.*OASIS Open.*\s*</property>
+    <property name="text1">
+      This document and translations of it may be copied and furnished to
+      others and derivative works that comment on or otherwise explain it
+      or assist in its implementation may be prepared copied published and
+      distributed.
+    </property>
+  </plugin>
+
+  <!-- The Modified BSD License Family -->
+  <plugin type="family" id="BSD-2-Clause" name="Modified BSD License">
+    <description>
+      This license allows unlimited redistribution for any purpose as
+      long as its copyright notices and the license's disclaimers of
+      warranty are maintained. The license also contains a clause
+      restricting use of the names of contributors for endorsement
+      of a derived work without specific permission.
+    </description>
+  </plugin>
+
+  <!--  The TMF854 License -->
+  <plugin type="license" id="TMF854" familyId="BSD-2-Clause" name="TeleManagement Forum License"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="TMF854">
+    <property name="copyright">\s*TMF854 Version 1.0 - Copyright TeleManagement Forum\s*</property>
+  </plugin>
+
+  <!--  QSE Lin internal licenses: NOTC, and BIN -->
+  <plugin type="family" id="QLIN" name="QSE Lin internal Pseudo Licenses">
+    <description>
+      There is a set of "pseudo licenses", which are reserved for QSE Lin's internal purposes. These
+      dummy licenses include the "Notice License" (Matching files are assumed to be notice files,
+      thus ignorable.) and the "Binary License" (Matching files are assumed to be binaries, thus
+      ignorable.)
+    </description>
+  </plugin>
+  <plugin type="license" id="NOTC" familyId="QLIN" name="QSE Lin internal Notice License"/>
+  <plugin type="license" id="BIN" familyId="QLIN" name="QSE Lin internal Binary License"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.NameExtensionMatcher" id="NOTC" name="QSE Lin Notice Matcher">
+    <property name="caseSensitive">false</property>
+    <property name="extensions">txt</property>
+  </plugin>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.NameExtensionMatcher" id="BIN" name="QSE Lin Binary Matcher">
+    <property name="caseSensitive">false</property>
+    <property name="extensions">jar zip 7z gif jpg jpeg</property>
+  </plugin>
+  <!-- Javadoc files -->
+  <plugin type="license" id="JDOC" familyId="QLIN" name="Generated Javadoc files (License not required)"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.PatternBasedMatcher" id="JDOC">
+    <property name="patterns">Generated by javadoc</property>
+  </plugin>
+  <!-- Generated files -->
+  <plugin type="license" id="GEN" familyId="QLIN" name="Generated files (License not required)"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.PatternBasedMatcher" id="GEN">
+    <property name="patterns">
+generated by Cayenne
+Generated By:JJTree
+Generated By:JavaCC
+THIS FILE IS AUTOMATICALLY GENERATED
+NOTE: this file is autogenerated by XBeans
+This file was automatically generated by
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+# Microsoft Developer Studio Generated NMAKE File
+# Microsoft Developer Studio Generated Build File
+Generated from configure.ac by autoheader
+generated automatically by aclocal
+build.xml generated by maven from project.xml
+This file was generated by
+This file has been automatically generated.
+Automatically generated - do not modify!
+Javadoc style sheet
+SOURCE FILE GENERATATED
+Generated by the Batik
+this file is autogenerated
+This class was autogenerated
+Generated by Maven
+Autogenerated by Thrift
+DO NOT EDIT THIS FILE - it is machine generated
+This class was generated by
+</property>
+  </plugin>
+
+  <!-- CDDL1 --> 
+  <plugin type="family" id="CDDL1" name="COMMON DEVELOPMENT AND DISTRIBUTION LICENSE Version 1.0">
+  </plugin>
+  <plugin type="license" id="CDDL1" familyId="CDDL1" name="COMMON DEVELOPMENT AND DISTRIBUTION LICENSE Version 1.0"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="CDDL1">
+    <property name="text1">
+        The contents of this file are subject to the terms of the Common Development
+        and Distribution License ("CDDL") (the "License"). You may not use this file
+        except in compliance with the License.
+    </property>
+  </plugin>
+  <plugin type="license" id="CDDL1ILL" familyId="CDDL1" name="COMMON DEVELOPMENT AND DISTRIBUTION LICENSE Version 1.0 (Illumos Style)"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.FullTextMatcher" id="CDDL1ILL">
+    <property name="text1">
+        The contents of this file are subject to the terms of the
+        Common Development and Distribution License (the "License")
+        You may not use this file except in compliance with the License.
+    </property>
+  </plugin>
+
+  <!-- Dojo Toolkit License -->
+  <plugin type="family" id="DOJO" name="Dojo Toolkit License">
+    <description>
+      The Dojo Toolkit is dual-licensed. The preferred license is the
+      Academic Free License v2.1. It is extremely liberal, allows for
+      commercial use, and provides for sub-licensing. All Dojo
+      Foundation projects release their code under the terms of this
+      license. It is almost never necessary to exercise the “dual”
+      portion of the dual-licensing terms since the AFL is extremely
+      permissive.
+
+      For users who face the problem of artificial ambiguity the
+      FSF has created regarding the compatibility of the AFL and
+      the (L)GPL, The Dojo Toolkit may alternately be used under
+      the terms of the BSD License. Both the AFL and the BSD
+      licenses meet the licensing goals of the Dojo Foundation.
+    </description>
+  </plugin>
+  <plugin type="license" id="DOJO" familyId="DOJO" name="Modified BSD License"/>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.PatternBasedMatcher" id="DOJO">
+    <property name="patterns">http://dojotoolkit.org/community/licensing.shtml</property>
+  </plugin>
+  <plugin type="exclusion" id="eclipse">
+    <property name="exclusions">
+      **/.classpath
+      **/.project
+      **/.settings/**/*
+    </property>
+  </plugin>
+  <plugin type="exclusion" id="git">
+    <property name="exclusions">
+      **/.git/**/*
+      **/.gitignore
+    </property>
+  </plugin>
+  <plugin type="exclusion" id="idea">
+    <property name="exclusions">
+      **/*.iml
+      **/*.ipr
+      **/*.iws
+      **/.idea/**/*
+    </property>
+  </plugin>
+  <plugin type="exclusion" id="maven">
+    <property name="exclusions">
+      **/target/**/*
+      **/coberura.ser
+    </property>
+  </plugin>
+</qse-lin-plugins>
