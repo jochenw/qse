@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<logMessageConfig>
+	<!-- Default locale for this catalogue -->
+	<locale>EN</locale>
+	<componentList>
+		<component key="Cbx">
+			<name>Stiftung CBX Layer</name>
+			<facilityList>
+				<facility key="100">
+					<name>Main</name>
+					<messageList>
+						<message key="0001" level="TRACE">
+							<text locale="EN">Envelope processing. Queue {0} XML: {1} </text>
+						</message>
+						<message key="0002" level="INFO">
+							<text locale="EN">EnvelopeDoc created. RefNo: {0}</text>
+						</message>
+						<message key="0003" level="INFO">
+							<text locale="EN">Type processing. Type {0} Refno: {1} </text>
+						</message>
+						<message key="0004" level="ERROR">
+							<text locale="EN">Error in ReceiveService: Type {0} XML: {1} LastError {2}</text>
+						</message>
+						<message key="0005" level="INFO">
+							<text locale="EN">Acknowledge created. RefNo: {0} Status: {1}</text>
+						</message>
+                        <message key="0006" level="INFO">
+    						<text locale="EN">Acknowledge created. RefNo: {0} Error {1}</text>
+						</message>
+						<message key="0007" level="ERROR">
+							<text locale="EN">Error in ReceiveService: Type {0} LastError {1}</text>
+						</message>
+					</messageList>
+				</facility>
+				<facility key="200">
+					<name>Initialisation</name>
+					<messageList>
+						<message key="0001" level="TRACE">
+							<text locale="EN">Started JMS-Autosetup for Package {0}.</text>
+						</message>
+							<message key="0002" level="TRACE">
+							<text locale="EN">Ended JMS-Autosetup for Package {0}.</text>
+						</message>
+					</messageList>
+				</facility>	
+				<facility key="300">
+					<name>Validate</name>
+					<messageList>
+						<message key="0001" level="ERROR">
+							<text locale="EN">Schema Validation Error! Schema {0} Errors {1} xmlString: {2}</text>
+						</message>
+						<message key="0002" level="INFO">
+							<text locale="EN">... {0} subscribed.</text>
+						</message>
+					<message key="0003" level="INFO">
+							<text locale="EN">Message not sent, because of validation errors! Type: {0} RefNo: {1}.</text>
+						</message>	
+					</messageList>
+				</facility>	
+				<facility key="400">
+					<name>Publish</name>
+					<messageList>
+						<message key="0001" level="INFO">
+							<text locale="EN">Message Type: {0} Status: {1} Refno: {3} published to: {2}.</text>
+						</message>
+						<message key="0002" level="INFO">
+							<text locale="EN">Message Type {0} Refno {2} published to {1}.</text>
+						</message>
+						<message key="0003" level="INFO">
+							<text locale="EN">Message {0} not published, no send criteria</text>
+						</message>
+						<message key="0004" level="INFO">
+							<text locale="EN">Message Type {0} with uuid  {1} was send to Dispatcher.</text>
+						</message>
+						<message key="0005" level="INFO">
+							<text locale="EN">Message Type {0} with uuid  {1} was not send to Dispatcher caused of wrong country and countryBlock.</text>
+						</message>
+					</messageList>
+				</facility>						
+			</facilityList>
+		</component>
+	</componentList>
+</logMessageConfig>

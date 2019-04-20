@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules xmlns="http://namespaces.github.com/jochenw/qse/is/rules/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://namespaces.github.com/jochenw/qse/is/rules/1.0.0 rules.xsd ">
+  <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.PipelineDebugRule" severity="ERROR">
+    <property name="permittedValues">0,1</property>
+  </rule>
+  <rule enabled="true" id="DebugLogRule" class="com.github.jochenw.qse.is.core.rules.ForbiddenServicesRule" severity="ERROR">
+    <listProperty name="serviceNames">
+      <value>pub.flow:debugLog</value>
+    </listProperty>
+  </rule>
+  <rule enabled="true" id="AppendToListRule" class="com.github.jochenw.qse.is.core.rules.ForbiddenServicesRule" severity="WARN">
+    <listProperty name="serviceNames">
+      <value>pub.list:appendToDocumentList</value>
+      <value>pub.list:appendToStringList</value>
+    </listProperty>
+  </rule>
+  <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.LogMessageCatalogRule" severity="ERROR">
+    <property name="sourceService">wx.log.pub:logMessageFromCatalogDev</property>
+    <property name="targetService">wx.log.pub:logMessageFromCatalog</property>
+    <property name="severitySpecificationSeverity">WARN</property>
+  </rule>
+  <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.AuditSettingsRule" severity="ERROR">
+    <!-- The first values configure, which audit settings we are expected for the services given below. In all cases, we may  -->
+    <!-- either configure the single numerical value (default severity), or an explicit severity, as in "ERROR:1". -->
+    <property name="expectedEnableAuditingValue">1</property><!-- 0=Never, 1=Always, 2=When top-level service only -->
+    <property name="expectedLogOnValue">0</property><!-- 0=Error only, 1=Error, and success, 2=Error, success, and start -->
+    <property name="expectedIncludePipelineValue">1</property><!-- 0=Never, 1=On errors only, 2=Always -->
+    <!-- In what follows, we configure, which services are being checked. -->
+    <listProperty name="includedServices">
+      <!-- Public servives (located below "pub" -->
+      <value>^.*\.pub(\..*\:|\:).*$</value>
+      <!-- Web servives (located below "ws.provider" -->
+      <value>^.*\.ws\.provider(\..*\:|\:).*$</value>
+      <!-- REST servives (named _get, _post, _put, or _delete) -->
+      <value>^.*\:(_get|_post|_put|_delete)$</value>
+    </listProperty>
+    <listProperty name="excludedServices">
+      <!-- Nothing to exclude -->
+    </listProperty>
+  </rule>
+</rules>

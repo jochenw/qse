@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
 import com.github.jochenw.afw.core.io.DefaultMatcher;
 import com.github.jochenw.afw.core.io.DirectoryScanner;
 import com.github.jochenw.afw.core.io.DirectoryScanner.Context;
@@ -32,13 +34,13 @@ import com.github.jochenw.qse.lin.core.api.IQLinResource;
 import com.github.jochenw.qse.lin.core.api.IQLinResourceSet;
 
 public class FileSet implements IQLinResourceSet {
-	private final Path dir;
+	private final @Nonnull Path dir;
 	private final String[] includes, excludes;
 	private final boolean caseSensitive;
 	private final boolean scanningArchives;
 	private final Charset charset;
 
-	public FileSet(Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
+	public FileSet(@Nonnull Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
 			boolean pScanningArchives, Charset pCharset) {
 		dir = pDir;
 		includes = pIncludes;

@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
 import com.github.jochenw.afw.core.inject.IComponentFactory;
 import com.github.jochenw.afw.core.util.Objects;
@@ -67,6 +69,6 @@ public interface IQLinEngineBuilder {
 	IQLinEngineBuilder pluginRegistry(IPluginRegistry pPluginRegistry);
 	IComponentFactory getComponentFactory();
 	IQLinEngineBuilder resourceSet(IQLinResourceSet pResourceSet);
-	IQLinEngineBuilder fileSet(Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
+	IQLinEngineBuilder fileSet(@Nonnull Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
 			boolean pScanningArchives, Charset pCharset);
 }

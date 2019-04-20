@@ -1,0 +1,89 @@
+package com.github.jochenw.qse.is.core.rules;
+
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import com.github.jochenw.afw.core.plugins.IPluginRegistry;
+import com.github.jochenw.qse.is.core.Scanner;
+import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
+import com.github.jochenw.qse.is.core.api.Rule;
+import com.github.jochenw.qse.is.core.model.IsPackage;
+import com.github.jochenw.qse.is.core.model.IsWorkspace;
+
+
+public class AbstractRule implements Rule {
+	private String id;
+	private Severity severity;
+	private Scanner scanner;
+	private Map<String,Object> properties;
+	private RulesParser.Rule parserRule;
+
+	public void init(@Nonnull RulesParser.Rule pParserRule) {
+		if (pParserRule.getId() == null) {
+			String className = pParserRule.getClassName();
+			final int dollarOffset = className.lastIndexOf('$');
+			if (dollarOffset == -1) {
+				final int dotOffset = className.lastIndexOf('.');
+				if (dotOffset == -1) {
+					id = className;
+				} else {
+					id = className.substring(dotOffset+1);
+				}
+			} else {
+				id = className.substring(dollarOffset+1);
+			}
+		} else {
+			id = pParserRule.getId();
+		}
+		parserRule = pParserRule;
+		severity = pParserRule.getSeverity();
+		properties = pParserRule.getProperties();
+	}
+
+
+	protected void accept(@Nonnull IPluginRegistry pRegistry) {
+	}
+
+	@Override
+	public void accept(@Nonnull Scanner pScanner) {
+		scanner = pScanner;
+		accept(pScanner.getPluginRegistry());
+	}
+
+	public Scanner getScanner() {
+		return scanner;
+	}
+
+	public Severity getSeverity() {
+		return severity;
+	}
+
+	public Object getProperty(@Nonnull String pKey) {
+		return properties.get(pKey);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public RulesParser.Rule getParserRule() {
+		return parserRule;
+	}
+
+	public IsWorkspace getWorkspace() {
+		return getScanner().getWorkspace();
+	}
+
+	public IPluginRegistry getPluginRegistry() {
+		return getScanner().getPluginRegistry();
+	}
+
+	protected void issue(@Nonnull IsPackage pPackage, @Nonnull String pUri, @Nonnull String pErrorCode, @Nonnull String pDetails) {
+		issue(pPackage, pUri, pErrorCode, pDetails, getSeverity());
+	}
+
+	protected void issue(@Nonnull IsPackage pPackage, @Nonnull String pUri, @Nonnull String pErrorCode, @Nonnull String pDetails, @Nonnull Severity pSeverity) {
+		getWorkspace().issue(this, pPackage, pUri, pErrorCode, pSeverity, pDetails);
+	}
+}

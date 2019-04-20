@@ -227,6 +227,7 @@ public class QLinPluginsParser {
 			validators.add(new Validator(pPluginInfo.locator, pValidator));
 		}
 	}
+
 	public void parse(Path pPath, Consumer<PluginInfo> pConsumer) {
 		final Handler h = new Handler(pConsumer);
 		Sax.parse(pPath, h);

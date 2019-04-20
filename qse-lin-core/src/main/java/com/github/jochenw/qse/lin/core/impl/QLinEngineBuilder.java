@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import com.github.jochenw.afw.core.ILifefycleController;
 import com.github.jochenw.afw.core.impl.DefaultLifecycleController;
 import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder;
@@ -145,7 +147,7 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 		return new SimpleComponentFactoryBuilder();
 	}
 
-	protected Module newDefaultModule() {
+	@Nonnull protected Module newDefaultModule() {
 		final List<IArchiveHandler> archiveHandlers = asPluginList(getPluginRegistry().getArchiveHandlers());
 		final List<IMatcher> allMatchers = asPluginList(getPluginRegistry().getMatchers());
 		final List<ILicense> licenses = asPluginList(getPluginRegistry().getLicenses());
@@ -413,7 +415,7 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 				excludeList.addAll(excList);
 			}
 			final String[] fsExcludes = excludeList.toArray(new String[excludeList.size()]);
-			fileSet(Paths.get(fs.getDir()), fs.getIncludes(), fsExcludes, fs.isCaseSensitive(), fs.isScanningArchives(), fs.getCharSet());
+			fileSet(Objects.requireNonNull(Paths.get(fs.getDir())), fs.getIncludes(), fsExcludes, fs.isCaseSensitive(), fs.isScanningArchives(), fs.getCharSet());
 		}
 		return componentFactory.requireInstance(IQLinEngine.class);
 	}
@@ -449,7 +451,7 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 	}
 
 	@Override
-	public IQLinEngineBuilder fileSet(Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
+	public IQLinEngineBuilder fileSet(@Nonnull Path pDir, String[] pIncludes, String[] pExcludes, boolean pCaseSensitive,
 			                          boolean pScanningArchives, Charset pCharset) {
 		Objects.requireNonNull(pDir, "Base directory");
 		if (!Files.isDirectory(pDir)) {
