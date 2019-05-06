@@ -1,68 +1,36 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.github.jochenw.qse.lin</groupId>
-  <artifactId>qse-lin-maven</artifactId>
-  <version>0.1-SNAPSHOT</version>
-  <name>QSE Lin (Maven)</name>
-  <description>A Maven plugin for running the QSE License Inspector</description>
-  <dependencies>
-  	<dependency>
-  		<groupId>com.github.jochenw.qse.lin</groupId>
-  		<artifactId>qse-lin-core</artifactId>
-  		<version>0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.maven.plugin-tools</groupId>
-  		<artifactId>maven-plugin-annotations</artifactId>
-  		<version>3.6.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.apache.maven</groupId>
-  		<artifactId>maven-plugin-api</artifactId>
-  		<version>3.6.0</version>
-  	</dependency>
-  </dependencies>
-  <packaging>maven-plugin</packaging>
-  <build>
-  	<pluginManagement>
-  		<plugins>
-  			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-  			<plugin>
-  				<groupId>org.eclipse.m2e</groupId>
-  				<artifactId>lifecycle-mapping</artifactId>
-  				<version>1.0.0</version>
-  				<configuration>
-  					<lifecycleMappingMetadata>
-  						<pluginExecutions>
-  							<pluginExecution>
-  								<pluginExecutionFilter>
-  									<groupId>
-  										org.apache.maven.plugins
-  									</groupId>
-  									<artifactId>
-  										maven-plugin-plugin
-  									</artifactId>
-  									<versionRange>
-  										[3.2,)
-  									</versionRange>
-  									<goals>
-  										<goal>descriptor</goal>
-  									</goals>
-  								</pluginExecutionFilter>
-  								<action>
-  									<execute/>
-  								</action>
-  							</pluginExecution>
-  						</pluginExecutions>
-  					</lifecycleMappingMetadata>
-  				</configuration>
-  			</plugin>
-  		</plugins>
-  	</pluginManagement>
-  </build>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.jochenw.qse</groupId>
+	<artifactId>qse</artifactId>
+	<packaging>pom</packaging>
+	<version>qse</version>
+	<modules>
+		<module>qse-is-ant-tasks</module>
+		<module>qse-is-core</module>
+		<module>qse-lin-core</module>
+		<module>qse-lin-maven</module>
+	</modules>
+	<properties>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	    <maven.compiler.source>1.8</maven.compiler.source>
+	    <maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	<name>QSE</name>
+	<url>https://github.com/jochenw/qse</url>
+	<description>QSE is a set of engines for static code analysis, and the like, which are designed from the ground up to be **extremely** quick.
+
+1. The first engine is the *License Inspector* (QSE Lin), basically a faster successor to Apache Rat.
+   The License Inspector consists of the two Maven modules **qse-lin-core** (the actual scanning engine),    and a Maven plugin (**qse-lin-maven**), which allows to run the engine from within Maven. QSE Lin
+   scans itself (the core project) in less than 500 milliseconds. That's sufficiently fast to have it running
+   within a Git, or Subversion hook.
+
+2. The second engine is the IntegrationServer Package Scanner (QSE IS), which analyzes packages for the
+    webMethods Integration server (https://en.wikipedia.org/wiki/WebMethods_Integration_Server).
+    This can be used to detect violations of best practices, as developed in a big scaled customer project,
+    which has been running over several years, creating a few hundreds of such packages.
+    The IS package scanner is implemented by the two Maven projects **qse-is** (the actual scanning engine),     and an Ant task (**qse-is-ant**), which enables running the engine from within Ant.
+</description>
 </project>
