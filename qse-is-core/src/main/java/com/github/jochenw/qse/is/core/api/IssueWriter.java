@@ -114,6 +114,12 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 			final TransformerHandler trh = th;
 			th = null;
 			try {
+				final AttributesImpl attrs = new AttributesImpl();
+				attrs.addAttribute(XMLConstants.NULL_NS_URI, "errors", "errors", "CDATA", String.valueOf(numberOfErrors));
+				attrs.addAttribute(XMLConstants.NULL_NS_URI, "warnings", "errors", "CDATA", String.valueOf(numberOfWarnings));
+				attrs.addAttribute(XMLConstants.NULL_NS_URI, "otherIssues", "errors", "CDATA", String.valueOf(numberOfOtherIssues));
+				trh.startElement(XMLConstants.NULL_NS_URI, "count", "count", attrs);
+				trh.endElement(XMLConstants.NULL_NS_URI, "count", "count");
 				trh.endElement(XMLConstants.NULL_NS_URI, "issues", "issues");
 				trh.endDocument();
 			} catch (SAXException se) {

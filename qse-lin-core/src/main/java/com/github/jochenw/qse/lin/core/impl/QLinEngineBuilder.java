@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import com.github.jochenw.afw.core.ILifefycleController;
+import com.github.jochenw.afw.core.ILifecycleController;
 import com.github.jochenw.afw.core.impl.DefaultLifecycleController;
 import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder;
 import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Binder;
@@ -165,7 +165,7 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 		return new Module() {
 			@Override
 			public void configure(Binder pBinder) {
-				pBinder.bind(ILifefycleController.class).to(DefaultLifecycleController.class).in(Scopes.SINGLETON);
+				pBinder.bind(ILifecycleController.class).to(DefaultLifecycleController.class).in(Scopes.SINGLETON);
 				pBinder.bind(IQLinEngine.class).to(DefaultQLinEngine.class);
 				pBinder.bind(QLinConfiguration.class).toProvider(() -> getConfiguration());
 				pBinder.bind(IQLinReportWriter.class).to(DefaultQLinReportWriter.class);
@@ -397,7 +397,7 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 				pluginRegistry = newPluginRegistry();
 			}
 			componentFactory = componentFactoryBuilder.module(newDefaultModule()).modules(getModules()).build();
-			componentFactory.requireInstance(ILifefycleController.class).start();
+			componentFactory.requireInstance(ILifecycleController.class).start();
 		}
 		final Map<String,IExclusionList> exclusionListMap = getExclusionListMap();
 		final List<String> excList = new ArrayList<>();

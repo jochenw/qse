@@ -64,8 +64,9 @@ public class LogMessageCatalogRule extends AbstractRule {
 		pRegistry.addPlugin(PackageFileConsumer.class, new PackageFileConsumer() {
 			public void accept(PackageFileConsumer.Context pContext) {
 				final String localPath = pContext.getLocalPath();
-				if (localPath.endsWith("config/log-messages.xml")) {
-					if ("config/log-messages.xml".equals(localPath)) {
+				if (localPath.endsWith("/config/log-messages.xml")) {
+					final String expectedPath = pContext.getPackage().getName() + "/config/log-messages.xml";
+					if (expectedPath.equals(localPath)) {
 						final IsPackage pkg = pContext.getPackage();
 						final String systemId = pkg.getName() + "/" + localPath;
 						final LogMessageCatalogParser lmcp = new LogMessageCatalogParser();
@@ -77,7 +78,7 @@ public class LogMessageCatalogRule extends AbstractRule {
 						}
 					} else {
 						throw new IllegalStateException("Unexpected log message file: " + localPath
-								+ ", expected config/log-messages.xml");
+								+ ", expected " + expectedPath);
 					}
 				}
 			}

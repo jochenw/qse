@@ -70,7 +70,7 @@ public class ScannerTest {
 		scanner.getWorkspace().addListener(ic);
 		scanner.setBaseDir(path);
 		scanner.run();
-		assertEquals(17, issues.size());
+		assertEquals(18, issues.size());
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "PipelineDebugRule", ErrorCodes.PIPELINE_DEBUG_USE, "jwi.scratch.pipelineDebug:pipelineDebugSave", "A flow service must have Pipeline debug=None");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLog", "Use of forbidden service: pub.flow:debugLog");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLogInTransformer", "Use of forbidden service: pub.flow:debugLog");
@@ -88,6 +88,7 @@ public class ScannerTest {
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_ENABLE, "jwi.scratch.auditSettings.pub:pubServiceFail", "Invalid value for Audit/Enable auditing: Expected 1, got 0");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_INCLUDE_PIPELINE, "jwi.scratch.auditSettings.restServices:_post", "Invalid value for Audit/Include pipeline: Expected 1, got 2");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_LOG_ON, "jwi.scratch.auditSettings.ws.provider:wsServiceFail", "Invalid value for Audit/Log On: Expected 0, got 1");
+		assertIssue(issues, Severity.ERROR, "StartupServicePackage", "StartupServiceRule", ErrorCodes.STARTUP_SERVICE_UNKNOWN, "StartupServicePackage/manifest.v3", "Startup service com.foo.mypkg.admin:startup is not present in package StartupServicePackage");
 		for (MyIssue issue : issues) {
 			if (!issue.expected) {
 				System.err.println("Unexpected issue: errorCode=" + issue.getErrorCode()

@@ -24,27 +24,54 @@ import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 
 
 public class PackageScannerRule extends AbstractRule implements PackageFileConsumer {
+	public interface ManifestConsumer {
+		public ContentHandler getContentHandler(PackageFileConsumer.Context pContext);
+	}
 	@Override
 	protected void accept(@Nonnull IPluginRegistry pRegistry) {
 		pRegistry.addExtensionPoint(NodeConsumer.class);
 		pRegistry.addExtensionPoint(FlowConsumer.class);
+		pRegistry.addExtensionPoint(ManifestConsumer.class);
 		pRegistry.addPlugin(PackageFileConsumer.class, this);
 	}
 
 	private static final String nodeNdfSuffix = "/node.ndf";
+	private static final String manifestFileName = "/manifest.v3";
 
 	public void accept(@Nonnull PackageFileConsumer.Context pContext) {
 		final ContextImpl ctx = (ContextImpl) pContext;
 		final IsPackage pkg = pContext.getPackage();
 		if (pkg != null) {
 			String uri = pContext.getLocalPath();
+			System.out.println(uri);
 			if (uri == null) {
 				System.out.println("Null URI: " + ctx.getFile());
-			} else if (uri.endsWith(nodeNdfSuffix)) {
-				if (uri.startsWith("ns/")) {
-					uri = uri.substring("ns/".length());
+			} else if (uri.endsWith(manifestFileName)) {
+				final String expectedUri = pkg.getName() + manifestFileName;
+				if (expectedUri.equals(uri)) {
+					final List<ContentHandler> handlers = new ArrayList<ContentHandler>();
+					getScanner().getPluginRegistry().forEach(ManifestConsumer.class, (mc) -> {
+						final ContentHandler ch = mc.getContentHandler(ctx);
+						if (ch != null) {
+							handlers.add(ch);
+						}
+					});
+					if (!handlers.isEmpty()) {
+						try (InputStream in = pContext.open()) {
+							Sax.parseTerminable(in, pkg.getName() + "/" + manifestFileName, handlers);
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					}
 				} else {
-					throw new IllegalStateException("Expected node URI to start with ns/, got " +uri);
+					throw new IllegalStateException("Unexpected manifest file: " + uri + ", expected " + expectedUri);
+				}
+			} else if (uri.endsWith(nodeNdfSuffix)) {
+				final String nsPrefix = pContext.getPackage().getName() + "/ns/";
+				if (uri.startsWith(nsPrefix)) {
+					uri = uri.substring(nsPrefix.length());
+				} else {
+					throw new IllegalStateException("Expected node URI to start with " + nsPrefix + ", got " +uri);
 				}
 				final BasicNodeInfoParser bnip = new BasicNodeInfoParser();
 				final List<ContentHandler> handlers = new ArrayList<ContentHandler>();

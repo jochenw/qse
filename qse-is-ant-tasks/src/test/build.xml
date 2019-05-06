@@ -1,0 +1,5 @@
+<project xmlns:au="antlib:org.apache.ant.antunit" name="antunit-tests">
+  	<target name="setUp">
+  		<echo>Setup task running</echo>
+  	</target>
+</project>

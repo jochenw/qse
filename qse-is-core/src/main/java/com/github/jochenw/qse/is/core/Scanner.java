@@ -30,6 +30,7 @@ import com.github.jochenw.qse.is.core.rules.RulesParser;
 import com.github.jochenw.qse.is.core.sax.Sax;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.WorkspaceScannerOld;
 import com.github.jochenw.qse.is.core.scan.ContextImpl.EditRequest;
 
 public class Scanner {
@@ -44,7 +45,6 @@ public class Scanner {
 	@Inject Logger logger;
 	@Inject IsWorkspace workspace;
 	private final List<Rule> rules = new ArrayList<>();
-	private Function<List<EditRequest>,Boolean> editRequestHandler;
 	private Path baseDir;
 	private boolean immutable;
 
@@ -63,14 +63,6 @@ public class Scanner {
 		rules.add(pRule);
 	}
 
-	public Function<List<EditRequest>, Boolean> getEditRequestHandler() {
-		return editRequestHandler;
-	}
-
-	public void setEditRequestHandler(Function<List<EditRequest>, Boolean> editRequestHandler) {
-		this.editRequestHandler = editRequestHandler;
-	}
-
 	public void add(Finalizer pFinalizer) {
 		pluginRegistry.addPlugin(Finalizer.class, pFinalizer);
 	}
@@ -82,9 +74,8 @@ public class Scanner {
 	public void run() {
 		makeImmutable();
 		final List<PackageFileConsumer> packageFileConsumers = pluginRegistry.getPlugins(PackageFileConsumer.class);
-		WorkspaceScanner workspaceScanner = new WorkspaceScanner(getWorkspace(), baseDir);
-		workspaceScanner.setEditRequestHandler(editRequestHandler);
-		workspaceScanner.scan(packageFileConsumers);
+		WorkspaceScanner workspaceScanner = new WorkspaceScanner(getWorkspace());
+		workspaceScanner.scan(baseDir, packageFileConsumers);
 		pluginRegistry.forEach(Finalizer.class, (f) -> f.run());
 	}
 

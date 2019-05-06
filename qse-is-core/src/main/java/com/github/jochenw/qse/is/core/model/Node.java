@@ -40,4 +40,8 @@ public class Node {
 	public String getComment() {
 		return comment;
 	}
+
+	public boolean isService() {
+		return "service".equals(getType());
+	}
 }

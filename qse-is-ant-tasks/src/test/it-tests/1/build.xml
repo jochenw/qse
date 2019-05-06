@@ -1,0 +1,8 @@
+<project name="it-test-1" default="all">
+	<target name="all">
+		<taskdef name="qseIs" classname="com.github.jochenw.qse.is.ant.QseIsTask"/>
+		<delete dir="${basedir}/target"/>
+		<mkdir dir="${basedir}/target/output"/>
+		<qseIs scanDir="${basedir}/../../../src/test/resources/packages/JwiScratch" outFile="${basedir}/target/output/file.xml"/>
+	</target>
+</project>

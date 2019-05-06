@@ -38,4 +38,5 @@
       <!-- Nothing to exclude -->
     </listProperty>
   </rule>
+  <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.StartupServiceRule" severity="ERROR"/>
 </rules>

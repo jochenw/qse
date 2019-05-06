@@ -19,6 +19,9 @@ public class Main {
 				.pathOption().names("outFile").description("Sets the output file (Default: STDOUT)").end()
 				.pathOption().names("logFile").description("Sets the log file (Default: STDERR").end()
 				.pathOption().names("rulesFile").description("Sets the rules file (Required)").required().end()
+				.intOption(-1).names("maxNumberOfErrors").description("Sets the maximum number of errors (Default -1=unlimited).").end()
+				.intOption(-1).names("maxNumberOfWarnings").description("Sets the maximum number of warnings (Default -1=unlimited).").end()
+				.intOption(-1).names("maxNumberOfOtherIssues").description("Sets the maximum number of other issues (Default -1=unlimited).").end()
 				.booleanOption(false).names("h", "?", "help").description("Prints this help message, and exits with error status.").end();
 		final Function<String,RuntimeException> errorHandler = (s) -> {
 			Usage(s);
@@ -33,6 +36,9 @@ public class Main {
 		final Path logFile = optionsResult.getValue("logFile");
 		final Path outFile = optionsResult.getValue("outFile");
 		Path scanDir = optionsResult.getValue("scanDir");
+		final int maxNumberOfErrors = optionsResult.getIntValue("maxNumberOfErrors");
+		final int maxNumberOfWarnings = optionsResult.getIntValue("maxNumberOfWarnings");
+		final int maxNumberOfOtherIssues = optionsResult.getIntValue("maxNumberOfOtherIssues");
 		if (scanDir == null) {
 			scanDir = FileSystems.getDefault().getPath(".");
 		} else if (!Files.isDirectory(scanDir)) {
@@ -43,10 +49,26 @@ public class Main {
 		}
 		try (final Logger logger = getLogger(logFile)) {
 			final Scanner.Result scannerResult = scan(scanDir, outFile, rulesFile, logger);
+			if (maxNumberOfErrors != -1  &&  maxNumberOfErrors > scannerResult.getNumberOfErrors()) {
+				String msg = "Number of errors (" + scannerResult.getNumberOfErrors()
+				                         + ") exceeds permitted maximum number (" + maxNumberOfErrors + ")";
+				logger.error(msg);
+				System.exit(1);
+			}
+			if (maxNumberOfWarnings != -1  &&  maxNumberOfWarnings > scannerResult.getNumberOfWarnings()) {
+				logger.error("Number of warnings (" + scannerResult.getNumberOfWarnings()
+				                         + ") exceeds permitted maximum number (" + maxNumberOfWarnings + ")");
+				System.exit(1);
+			}
+			if (maxNumberOfOtherIssues != -1  &&  maxNumberOfOtherIssues > scannerResult.getNumberOfOtherIssues()) {
+				logger.error("Number of other issues (" + scannerResult.getNumberOfOtherIssues()
+				                         + ") exceeds permitted maximum number (" + maxNumberOfOtherIssues + ")");
+				System.exit(1);
+			}
 		}
 	}
 
-	private static Scanner.Result scan(Path pScanDir, Path pOutputFile, Path pRulesFile, Logger pLogger) {
+	public static Scanner.Result scan(Path pScanDir, Path pOutputFile, Path pRulesFile, Logger pLogger) {
 		final long startTime = System.currentTimeMillis();
 		System.out.println("Scanning directory: " + pScanDir);
 		final Scanner.Result result = Scanner.scan(pScanDir, pOutputFile, pRulesFile, pLogger);

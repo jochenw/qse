@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><Values version="2.0">
+  <value name="enabled">yes</value>
+  <value name="system_package">no</value>
+  <value name="version">2.7.4</value>
+  <record name="startup_services" javaclass="com.wm.util.Values">
+    <null name="com.foo.mypkg.admin:startup"/>
+  </record>
+  <null name="shutdown_services"/>
+  <null name="replication_services"/>
+  <record name="requires" javaclass="com.wm.util.Values">
+    <value name="WxConfig">1.7</value>
+    <value name="LidlLclContext">2.2</value>
+    <value name="LidlLclError">2.2</value>
+    <value name="LidlDispatch">2.1</value>
+    <value name="LidlLclUtils">2.2</value>
+  </record>
+  <value name="listACL">Default</value>
+  <value name="webappLoad">yes</value>
+</Values>
