@@ -19,7 +19,7 @@ package com.github.jochenw.qse.lin.core.plugins;
 import com.github.jochenw.qse.lin.core.api.IQLinResource;
 
 public class NameExtensionMatcher extends AbstractMatcher {
-	private String[] extensions;
+	private String[] extensions, lcExtensions;
 	private boolean caseSensitive = true;
 
 	public String[] getExtensions() {
@@ -27,11 +27,7 @@ public class NameExtensionMatcher extends AbstractMatcher {
 	}
 
 	public void setExtensions(String[] pExtensions) {
-		if (caseSensitive) {
-			extensions = pExtensions;
-		} else {
-			extensions = toLowerCase(pExtensions);
-		}
+		extensions = pExtensions;
 	}
 
 	public boolean isCaseSensitive() {
@@ -40,11 +36,15 @@ public class NameExtensionMatcher extends AbstractMatcher {
 
 	public void setCaseSensitive(boolean pCaseSensitive) {
 		caseSensitive = pCaseSensitive;
-		if (!pCaseSensitive  &&  extensions != null) {
-			extensions = toLowerCase(extensions);
-		}
 	}
 
+	@Override
+	public void initialized() {
+		if (!caseSensitive) {
+			lcExtensions = toLowerCase(extensions);
+		}
+	}
+	
 	protected String[] toLowerCase(String[] pExtensions) {
 		final String[] ext = new String[pExtensions.length];
 		for (int i = 0;  i < ext.length;  i++) {
@@ -55,7 +55,15 @@ public class NameExtensionMatcher extends AbstractMatcher {
 	
 	@Override
 	public boolean test(IQLinResource pRes) {
-		final String name = pRes.getName();
+		final String name;
+		final String[] myExtensions;
+		if (caseSensitive) {
+			myExtensions = extensions;
+			name = pRes.getName();
+		} else {
+			myExtensions = lcExtensions;
+			name = pRes.getName().toLowerCase();
+		}
 		for (String ext : extensions) {
 			if (name.endsWith(ext)) {
 				return true;

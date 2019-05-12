@@ -105,9 +105,9 @@ public class QLinPluginsParserTest {
 		});
 		assertEquals(10, numberOfLicenseFamilies.getValue());
 		assertEquals(14, numberOfLicenses.getValue());
-		assertEquals(14, numberOfMatchers.getValue());
+		assertEquals(15, numberOfMatchers.getValue());
 		assertEquals(0, numberOfArchiveHandlers.getValue());
-		assertEquals(4, numberOfExclusionLists.getValue());
+		assertEquals(5, numberOfExclusionLists.getValue());
 	}
 
 	@Test
@@ -116,8 +116,8 @@ public class QLinPluginsParserTest {
 		xpr.init();
 		assertEquals(10, xpr.getFamilies().size());
 		assertEquals(14, xpr.getLicenses().size());
-		assertEquals(14, xpr.getMatchers().size());
+		assertEquals(15, xpr.getMatchers().size());
 		assertEquals(0, xpr.getArchiveHandlers().size());
-		assertEquals(4, xpr.getExclusionLists().size());
+		assertEquals(5, xpr.getExclusionLists().size());
 	}
 }

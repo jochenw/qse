@@ -166,6 +166,10 @@
     <property name="caseSensitive">false</property>
     <property name="extensions">txt</property>
   </plugin>
+  <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.NamePatternMatcher" id="NOTC" name="QSE Lin Notice Pattern Matcher">
+    <property name="caseSensitive">true</property>
+    <property name="patterns">NOTICE*&#10;LICENSE*&#10;README*</property>
+  </plugin>
   <plugin type="matcher" class="com.github.jochenw.qse.lin.core.plugins.NameExtensionMatcher" id="BIN" name="QSE Lin Binary Matcher">
     <property name="caseSensitive">false</property>
     <property name="extensions">jar zip 7z gif jpg jpeg</property>

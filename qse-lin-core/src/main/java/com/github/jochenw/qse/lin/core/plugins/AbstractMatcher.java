@@ -18,8 +18,11 @@ package com.github.jochenw.qse.lin.core.plugins;
 
 import com.github.jochenw.qse.lin.core.api.IMatcher;
 
-public abstract class AbstractMatcher implements IMatcher {
+public abstract class AbstractMatcher implements IMatcher, Initializable {
 	private String id, name;
+
+	@Override
+	public void initialized() {}
 
 	@Override
 	public String getId() {

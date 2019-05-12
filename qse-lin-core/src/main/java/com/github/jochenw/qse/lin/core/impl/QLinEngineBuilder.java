@@ -63,6 +63,7 @@ import com.github.jochenw.qse.lin.core.api.IPluginRegistry;
 import com.github.jochenw.qse.lin.core.api.IPluginRegistry.PluginInfo;
 import com.github.jochenw.qse.lin.core.plugins.DefaultExclusionList;
 import com.github.jochenw.qse.lin.core.plugins.DefaultLicenseFamily;
+import com.github.jochenw.qse.lin.core.plugins.Initializable;
 import com.github.jochenw.qse.lin.core.plugins.XmlPluginRegistry;
 import com.github.jochenw.qse.lin.core.api.IQLinEngine;
 import com.github.jochenw.qse.lin.core.api.IQLinEngineBuilder;
@@ -251,6 +252,9 @@ public class QLinEngineBuilder extends AbstractBuilder<IQLinEngine,QLinEngineBui
 		setProperty(instance, "description", pPluginInfo.getDescription());
 		for (Map.Entry<String,String> en : pPluginInfo.getProperties().entrySet()) {
 			setProperty(instance, en.getKey(), en.getValue());
+		}
+		if (instance instanceof Initializable) {
+			((Initializable) instance).initialized();
 		}
 		return instance;
 	}

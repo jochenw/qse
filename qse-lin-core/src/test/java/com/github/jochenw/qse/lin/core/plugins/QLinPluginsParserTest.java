@@ -239,7 +239,7 @@ public class QLinPluginsParserTest {
 			isource.setSystemId(url.toExternalForm());
 			new QLinPluginsParser().parse(isource, (pi) -> plugins.add(pi));
 		}
-		assertEquals(42, plugins.size());
+		assertEquals(44, plugins.size());
 	}
 	
 	final List<PluginInfo> parse(String pXml, String pUri) throws SAXException {
