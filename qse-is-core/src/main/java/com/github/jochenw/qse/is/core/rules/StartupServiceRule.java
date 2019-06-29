@@ -11,8 +11,9 @@ import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.Finalizer;
 import com.github.jochenw.qse.is.core.api.NodeConsumer;
 import com.github.jochenw.qse.is.core.model.IsPackage;
+import com.github.jochenw.qse.is.core.model.NSName;
 import com.github.jochenw.qse.is.core.rules.ManifestParser.Listener;
-import com.github.jochenw.qse.is.core.rules.PackageScannerRule.ManifestConsumer;
+import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener;
 
 public class StartupServiceRule extends AbstractRule {
 	public static class LifecycleService {
@@ -32,23 +33,21 @@ public class StartupServiceRule extends AbstractRule {
 	
 	@Override
 	protected void accept(IPluginRegistry pRegistry) {
-		pRegistry.addPlugin(ManifestConsumer.class, new ManifestConsumer() {
-			@Override
-			public ContentHandler getContentHandler(
-					com.github.jochenw.qse.is.core.scan.PackageFileConsumer.Context pContext) {
-				final Listener listener = new Listener() {
-					@Override
-					public void startupService(String pService) {
-						startupServices.add(new LifecycleService(pContext.getPackage(), pService, pContext.getLocalPath()));
-					}
+		pRegistry.addPlugin(IsPackageListener.class, new IsPackageListener() {
 
-					@Override
-					public void shutdownService(String pService) {
-						shutdownServices.add(new LifecycleService(pContext.getPackage(), pService, pContext.getLocalPath()));
-					}
-					
-				};
-				return new ManifestParser(listener);
+			@Override
+			public void packageStarting(IsPackage pPackage) {
+				for (NSName name : pPackage.getStartupServices()) {
+					startupServices.add(new LifecycleService(pPackage, name.getQName(), pPackage.getUri()));
+				}
+				for (NSName name : pPackage.getShutdownServices()) {
+					shutdownServices.add(new LifecycleService(pPackage, name.getQName(), pPackage.getUri()));
+				}
+			}
+
+			@Override
+			public void packageStopping() {
+				// Nothing to do
 			}
 			
 		});

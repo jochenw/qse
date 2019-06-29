@@ -25,7 +25,7 @@ public class ForbiddenServicesParserTest {
 
 	@Test
 	public void testServiceUsingDebugLogTwice() throws Exception {
-		runTest("ServiceUsingDebugLogTwice.xml", "pub.flow:debugLog", "pub.flow:debugLog");
+		runTest("ServiceUsingDebugLogTwice.xml", "pub.flow:debugLog");
 	}
 
 	@Test
@@ -41,23 +41,17 @@ public class ForbiddenServicesParserTest {
 		final URL url = getClass().getResource(pUri);
 		assertNotNull(url);
 		final List<String> services = new ArrayList<>();
-		final ForbiddenServicesParser fsp = new ForbiddenServicesParser() {
+		final ServiceInvocationParser sip = new ServiceInvocationParser() {
 			@Override
-			protected void noteForbiddenService(String pServiceName) {
-				services.add(pServiceName);
-			}
-			
-			@Override
-			protected boolean isForbiddenService(String pServiceName) {
-				for (int i = 0;  i < pServiceNames.length;  i++) {
-					if (pServiceNames[i].equals(pServiceName)) {
-						return true;
+			protected void serviceInvocation(String pServiceName) {
+				for (String s : pServiceNames) {
+					if (s.equals(pServiceName)  &&  !services.contains(pServiceName)) {
+						services.add(pServiceName);
 					}
 				}
-				return false;
 			}
 		};
-		Sax.parseTerminable(url, fsp);
+		Sax.parseTerminable(url, sip);
 		assertEquals(pServiceNames.length, services.size());
 		for (int i = 0;  i < pServiceNames.length;  i++) {
 			assertEquals(pServiceNames[i], services.get(i));

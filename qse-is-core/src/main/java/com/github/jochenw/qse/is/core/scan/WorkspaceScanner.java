@@ -1,6 +1,7 @@
 package com.github.jochenw.qse.is.core.scan;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -10,14 +11,21 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
+import com.github.jochenw.afw.core.plugins.IPluginRegistry;
+import com.github.jochenw.afw.core.util.Sax;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.IsWorkspace;
+import com.github.jochenw.qse.is.core.model.NSName;
+import com.github.jochenw.qse.is.core.rules.ManifestParser;
+import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener;
 
 public class WorkspaceScanner {
 	private final IsWorkspace workspace;
+	private final IPluginRegistry pluginRegistry;
 
-	public WorkspaceScanner(IsWorkspace pWorkspace) {
+	public WorkspaceScanner(IsWorkspace pWorkspace, IPluginRegistry pPluginRegistry) {
 		workspace = pWorkspace;
+		pluginRegistry = pPluginRegistry;
 	}
 
 	public void scan(Path baseDir, List<PackageFileConsumer> pPackageFileConsumers) {
@@ -31,6 +39,7 @@ public class WorkspaceScanner {
 	}
 
 	private FileVisitor<Path> newVisitor(ContextImpl pContext, List<PackageFileConsumer> pPackageFileConsumers) {
+		final List<IsPackageListener> packageListeners = pluginRegistry.requirePlugins(IsPackageListener.class);
 		return new SimpleFileVisitor<Path>() {
 			final StringBuilder fullPath = new StringBuilder();
 			final StringBuilder localPath = new StringBuilder();
@@ -51,7 +60,34 @@ public class WorkspaceScanner {
 						throw new IllegalStateException("More than one manifest file detected in package " + currentIsPackage.getName() + ": "
 								+ manifestFile.toAbsolutePath());
 					}
-					currentIsPackage = workspace.addPackage(dirName, pDir.toAbsolutePath().toString());
+					currentIsPackage = workspace.addPackage(dirName, dirName + "/manifest.v3");
+					final ManifestParser.Listener mpl = new ManifestParser.Listener() {
+						@Override
+						public void version(String pVersion) {
+							currentIsPackage.setVersion(pVersion);
+						}
+
+						@Override
+						public void startupService(String pService) {
+							currentIsPackage.addStartupService(NSName.valueOf(pService));
+						}
+
+						@Override
+						public void shutdownService(String pService) {
+							currentIsPackage.addShutdownService(NSName.valueOf(pService));
+						}
+
+						@Override
+						public void requires(String pPackageName, String pVersion) {
+							currentIsPackage.addDependency(pPackageName, pVersion);
+						}
+					};
+					final ManifestParser mp = new ManifestParser(mpl);
+					Sax.parse(manifestFile, mp);
+					for (IsPackageListener ipl : packageListeners) {
+						ipl.packageStarting(currentIsPackage);
+					}
+					
 					currentIsPackageLevel = level;
 					pContext.setPackage(currentIsPackage);
 				} else {
@@ -93,6 +129,9 @@ public class WorkspaceScanner {
 				if (currentIsPackage != null) {
 					if (level == currentIsPackageLevel) {
 						currentIsPackage = null;
+						for (IsPackageListener ipl : packageListeners) {
+							ipl.packageStopping();
+						}
 						pContext.setPackage(null);
 						pContext.setLocalPath(null);
 						pContext.setFile(null);

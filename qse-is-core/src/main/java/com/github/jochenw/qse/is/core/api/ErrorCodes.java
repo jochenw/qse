@@ -10,4 +10,5 @@ public class ErrorCodes {
 	public static final String AUDIT_SETTTING_INCLUDE_PIPELINE = "QSEIS.0007";
 	public static final String STARTUP_SERVICE_UNKNOWN = "QSEIS.0008";
 	public static final String SHUTDOWN_SERVICE_UNKNOWN = "QSEIS.0009";
+	public static final String DEPENDENCY_MISSING = "QSEIS.0010";
 }

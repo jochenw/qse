@@ -74,7 +74,7 @@ public class Scanner {
 	public void run() {
 		makeImmutable();
 		final List<PackageFileConsumer> packageFileConsumers = pluginRegistry.getPlugins(PackageFileConsumer.class);
-		WorkspaceScanner workspaceScanner = new WorkspaceScanner(getWorkspace());
+		WorkspaceScanner workspaceScanner = new WorkspaceScanner(getWorkspace(), getPluginRegistry());
 		workspaceScanner.scan(baseDir, packageFileConsumers);
 		pluginRegistry.forEach(Finalizer.class, (f) -> f.run());
 	}

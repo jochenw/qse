@@ -70,7 +70,6 @@ public class ScannerTest {
 		scanner.getWorkspace().addListener(ic);
 		scanner.setBaseDir(path);
 		scanner.run();
-		assertEquals(18, issues.size());
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "PipelineDebugRule", ErrorCodes.PIPELINE_DEBUG_USE, "jwi.scratch.pipelineDebug:pipelineDebugSave", "A flow service must have Pipeline debug=None");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLog", "Use of forbidden service: pub.flow:debugLog");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLogInTransformer", "Use of forbidden service: pub.flow:debugLog");
@@ -89,6 +88,9 @@ public class ScannerTest {
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_INCLUDE_PIPELINE, "jwi.scratch.auditSettings.restServices:_post", "Invalid value for Audit/Include pipeline: Expected 1, got 2");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_LOG_ON, "jwi.scratch.auditSettings.ws.provider:wsServiceFail", "Invalid value for Audit/Log On: Expected 0, got 1");
 		assertIssue(issues, Severity.ERROR, "StartupServicePackage", "StartupServiceRule", ErrorCodes.STARTUP_SERVICE_UNKNOWN, "StartupServicePackage/manifest.v3", "Startup service com.foo.mypkg.admin:startup is not present in package StartupServicePackage");
+		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service jwi.scratch.messageCatalog:serviceOverridingSeverity in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalog, but neither of the following packages is declared as a dependency: WxLog");
+		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.missingDependencies:serviceUsingWxConfig",  "The flow service jwi.scratch.missingDependencies:serviceUsingWxConfig in package JwiScratch invokes the service wx.config.pub:getValue, but neither of the following packages is declared as a dependency: WxConfig");
+
 		for (MyIssue issue : issues) {
 			if (!issue.expected) {
 				System.err.println("Unexpected issue: errorCode=" + issue.getErrorCode()
@@ -108,6 +110,7 @@ public class ScannerTest {
 			}
 		}
 		assertNull(unexpectedIssue);
+		assertEquals(20, issues.size());
 	}
 
 	private void assertIssue(List<MyIssue> pIssues, Severity pSeverity, String pPackage, String pRule, String pErrorCode, String pPath, String pMessage) {

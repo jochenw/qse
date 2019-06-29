@@ -39,4 +39,10 @@
     </listProperty>
   </rule>
   <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.StartupServiceRule" severity="ERROR"/>
+  <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.DependencyCheckingRule" severity="WARN">
+    <listProperty name="dependencySpecifications">
+      <value>WxConfig:^wx.config[\.\:].*</value>
+      <value>WxLog:^wx.log[\.\:].*</value>
+    </listProperty>
+  </rule>
 </rules>

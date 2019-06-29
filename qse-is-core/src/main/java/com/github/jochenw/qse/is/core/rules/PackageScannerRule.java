@@ -14,6 +14,7 @@ import org.xml.sax.ContentHandler;
 
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.qse.is.core.api.FlowConsumer;
+import com.github.jochenw.qse.is.core.api.IServiceInvocationListener;
 import com.github.jochenw.qse.is.core.api.NodeConsumer;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.NSName;
@@ -24,14 +25,15 @@ import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 
 
 public class PackageScannerRule extends AbstractRule implements PackageFileConsumer {
-	public interface ManifestConsumer {
-		public ContentHandler getContentHandler(PackageFileConsumer.Context pContext);
+	public interface IsPackageListener {
+		public void packageStarting(IsPackage pPackage);
+		public void packageStopping();
 	}
 	@Override
 	protected void accept(@Nonnull IPluginRegistry pRegistry) {
 		pRegistry.addExtensionPoint(NodeConsumer.class);
 		pRegistry.addExtensionPoint(FlowConsumer.class);
-		pRegistry.addExtensionPoint(ManifestConsumer.class);
+		pRegistry.addExtensionPoint(IsPackageListener.class);
 		pRegistry.addPlugin(PackageFileConsumer.class, this);
 	}
 
@@ -48,22 +50,7 @@ public class PackageScannerRule extends AbstractRule implements PackageFileConsu
 				System.out.println("Null URI: " + ctx.getFile());
 			} else if (uri.endsWith(manifestFileName)) {
 				final String expectedUri = pkg.getName() + manifestFileName;
-				if (expectedUri.equals(uri)) {
-					final List<ContentHandler> handlers = new ArrayList<ContentHandler>();
-					getScanner().getPluginRegistry().forEach(ManifestConsumer.class, (mc) -> {
-						final ContentHandler ch = mc.getContentHandler(ctx);
-						if (ch != null) {
-							handlers.add(ch);
-						}
-					});
-					if (!handlers.isEmpty()) {
-						try (InputStream in = pContext.open()) {
-							Sax.parseTerminable(in, pkg.getName() + "/" + manifestFileName, handlers);
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						}
-					}
-				} else {
+				if (!expectedUri.equals(uri)) {
 					throw new IllegalStateException("Unexpected manifest file: " + uri + ", expected " + expectedUri);
 				}
 			} else if (uri.endsWith(nodeNdfSuffix)) {
@@ -102,13 +89,31 @@ public class PackageScannerRule extends AbstractRule implements PackageFileConsu
 					final String localNodePath = pContext.getLocalPath();
 					final String localFlowPath = localNodePath.substring(0, localNodePath.length()-nodeNdfSuffix.length()) + "/flow.xml";
 					ctx.setFlowLocalPath(localFlowPath);
+					final List<IServiceInvocationListener> serviceInvocationListeners = new ArrayList<>();
 					final List<ContentHandler> flowHandlers = new ArrayList<>();
 					getPluginRegistry().forEach(FlowConsumer.class, (fc) -> {
+						final IServiceInvocationListener listener = fc.getServiceInvocationListener(ctx);
+						if (listener != null) {
+							serviceInvocationListeners.add(listener);
+						}
 						final ContentHandler ch = fc.getContentHandler(ctx);
 						if (ch != null) {
 							flowHandlers.add(ch);
 						}
 					});
+					if (!serviceInvocationListeners.isEmpty()) {
+						final IsPackage sourcePackage = ctx.getPackage();
+						final Node sourceNode = ctx.getNode();
+						flowHandlers.add(new ServiceInvocationParser() {
+							@Override
+							protected void serviceInvocation(String pServiceName) {
+								final NSName targetServiceName = NSName.valueOf(pServiceName);
+								for (IServiceInvocationListener sic : serviceInvocationListeners) {
+									sic.serviceInvocation(sourcePackage, sourceNode.getName(), targetServiceName);
+								}
+							}
+						});
+					}
 					if (!flowHandlers.isEmpty()) {
 						Sax.parseTerminable(flowXmlPath, flowHandlers);
 					}

@@ -18,5 +18,6 @@ public interface FlowConsumer {
 	}
 
 	public default ContentHandler getContentHandler(@Nonnull Context pContext) { return null; }
+	public default IServiceInvocationListener getServiceInvocationListener(@Nonnull Context pContext) { return null; }
 	public void accept(@Nonnull Context pContext);
 }
