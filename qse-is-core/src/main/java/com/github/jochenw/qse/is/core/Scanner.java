@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -19,7 +18,6 @@ import com.github.jochenw.afw.core.plugins.DefaultPluginRegistry;
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.afw.core.util.Exceptions;
 import com.github.jochenw.qse.is.core.api.Finalizer;
-import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 import com.github.jochenw.qse.is.core.api.IssueWriter;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.Rule;
@@ -30,8 +28,6 @@ import com.github.jochenw.qse.is.core.rules.RulesParser;
 import com.github.jochenw.qse.is.core.sax.Sax;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
-import com.github.jochenw.qse.is.core.scan.WorkspaceScannerOld;
-import com.github.jochenw.qse.is.core.scan.ContextImpl.EditRequest;
 
 public class Scanner {
 	public static interface Result {

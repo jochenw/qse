@@ -10,7 +10,6 @@ import com.github.jochenw.qse.is.core.api.FlowConsumer;
 import com.github.jochenw.qse.is.core.api.IServiceInvocationListener;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.NSName;
-import com.github.jochenw.qse.is.core.model.Node;
 import com.github.jochenw.qse.is.core.rules.RulesParser.Rule;
 
 

@@ -1,7 +1,6 @@
 package com.github.jochenw.qse.is.core.scan;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;

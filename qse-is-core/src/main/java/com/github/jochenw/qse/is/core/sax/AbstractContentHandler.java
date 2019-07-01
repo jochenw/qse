@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import javax.xml.XMLConstants;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

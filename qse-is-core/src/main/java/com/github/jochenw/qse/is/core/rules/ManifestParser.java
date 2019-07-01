@@ -1,7 +1,5 @@
 package com.github.jochenw.qse.is.core.rules;
 
-import java.util.function.Consumer;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

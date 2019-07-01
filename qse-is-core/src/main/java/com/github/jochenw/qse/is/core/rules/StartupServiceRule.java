@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.xml.sax.ContentHandler;
-
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.Finalizer;
 import com.github.jochenw.qse.is.core.api.NodeConsumer;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.NSName;
-import com.github.jochenw.qse.is.core.rules.ManifestParser.Listener;
 import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener;
 
 public class StartupServiceRule extends AbstractRule {

@@ -8,7 +8,6 @@ import java.util.regex.PatternSyntaxException;
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.FlowConsumer;
-import com.github.jochenw.qse.is.core.api.FlowConsumer.Context;
 import com.github.jochenw.qse.is.core.api.IServiceInvocationListener;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.NSName;
