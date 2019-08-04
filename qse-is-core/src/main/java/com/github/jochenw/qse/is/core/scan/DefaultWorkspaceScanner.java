@@ -20,11 +20,11 @@ import com.github.jochenw.qse.is.core.model.NSName;
 import com.github.jochenw.qse.is.core.rules.ManifestParser;
 import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener;
 
-public class WorkspaceScanner implements IWorkspaceScanner {
-	public static class Context extends com.github.jochenw.qse.is.core.scan.IWorkspaceScanner.Context {
+public class DefaultWorkspaceScanner implements IWorkspaceScanner {
+	public static class DefaultWSContext extends com.github.jochenw.qse.is.core.scan.IWorkspaceScanner.Context {
 		private final Path baseDir;
 
-		public Context(Path pBaseDir) {
+		public DefaultWSContext(Path pBaseDir) {
 			baseDir = pBaseDir;
 		}
 
@@ -159,7 +159,7 @@ public class WorkspaceScanner implements IWorkspaceScanner {
 
 	@Override
 	public void scan(com.github.jochenw.qse.is.core.scan.IWorkspaceScanner.Context pContext) {
-		final Context context = (Context) pContext;
+		final DefaultWSContext context = (DefaultWSContext) pContext;
 		scan(context.getBaseDir(), context.getScanner().getPluginRegistry().getPlugins(PackageFileConsumer.class));
 	}
 }

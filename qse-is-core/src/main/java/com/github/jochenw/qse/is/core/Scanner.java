@@ -32,7 +32,7 @@ import com.github.jochenw.qse.is.core.rules.RulesParser;
 import com.github.jochenw.qse.is.core.sax.Sax;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
-import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
 
 
 public class Scanner {
@@ -99,7 +99,7 @@ public class Scanner {
 		final SimpleComponentFactoryBuilder cfb = new SimpleComponentFactoryBuilder()
 				.module((b) -> {
 					b.bind(IsWorkspace.class).toInstance(new IsWorkspace());
-					b.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class);
+					b.bind(IWorkspaceScanner.class).to(DefaultWorkspaceScanner.class);
 					b.bind(Scanner.class);
 					DefaultPluginRegistry pluginRegistry = new DefaultPluginRegistry();
 					pluginRegistry.addExtensionPoint(PackageFileConsumer.class);
@@ -171,8 +171,8 @@ public class Scanner {
 		final Module module = new Module() {
 			@Override
 			public void configure(Binder pBinder) {
-				final IWorkspaceScanner.Context context = new WorkspaceScanner.Context(scanDir);
-				pBinder.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class).in(Scopes.SINGLETON);
+				final IWorkspaceScanner.Context context = new DefaultWorkspaceScanner.DefaultWSContext(scanDir);
+				pBinder.bind(IWorkspaceScanner.class).to(DefaultWorkspaceScanner.class).in(Scopes.SINGLETON);
 				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
 			}
 		};

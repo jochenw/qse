@@ -20,7 +20,7 @@ import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
-import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
 
 
 public class ScannerTest {
@@ -72,8 +72,8 @@ public class ScannerTest {
 		final Module module = new Module() {
 			@Override
 			public void configure(Binder pBinder) {
-				final WorkspaceScanner.Context context = new WorkspaceScanner.Context(path);
-				pBinder.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class).in(Scopes.SINGLETON);
+				final DefaultWorkspaceScanner.DefaultWSContext context = new DefaultWorkspaceScanner.DefaultWSContext(path);
+				pBinder.bind(IWorkspaceScanner.class).to(DefaultWorkspaceScanner.class).in(Scopes.SINGLETON);
 				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
 			}
 		};
