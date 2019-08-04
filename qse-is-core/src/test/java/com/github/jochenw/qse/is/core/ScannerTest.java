@@ -11,11 +11,16 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Binder;
+import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
+import com.github.jochenw.afw.core.inject.Scopes;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
+import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
 
 
 public class ScannerTest {
@@ -64,11 +69,17 @@ public class ScannerTest {
 		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
 		logger.setDebugEnabled(true);
 		logger.setTraceEnabled(true);
-		final Scanner scanner = Scanner.newInstance(null, logger);
-		scanner.setBaseDir(path);
+		final Module module = new Module() {
+			@Override
+			public void configure(Binder pBinder) {
+				final WorkspaceScanner.Context context = new WorkspaceScanner.Context(path);
+				pBinder.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class).in(Scopes.SINGLETON);
+				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
+			}
+		};
+		final Scanner scanner = Scanner.newInstance(null, logger, module);
 		final IssueConsumer ic = (i) -> issues.add(new MyIssue(i));
 		scanner.getWorkspace().addListener(ic);
-		scanner.setBaseDir(path);
 		scanner.run();
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "PipelineDebugRule", ErrorCodes.PIPELINE_DEBUG_USE, "jwi.scratch.pipelineDebug:pipelineDebugSave", "A flow service must have Pipeline debug=None");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLog", "Use of forbidden service: pub.flow:debugLog");
