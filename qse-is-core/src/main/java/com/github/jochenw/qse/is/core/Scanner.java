@@ -12,11 +12,15 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
+import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Binder;
+import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
 import com.github.jochenw.afw.core.inject.IComponentFactory;
+import com.github.jochenw.afw.core.inject.Scopes;
 import com.github.jochenw.afw.core.inject.simple.SimpleComponentFactoryBuilder;
 import com.github.jochenw.afw.core.plugins.DefaultPluginRegistry;
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.afw.core.util.Exceptions;
+import com.github.jochenw.afw.core.util.Objects;
 import com.github.jochenw.qse.is.core.api.Finalizer;
 import com.github.jochenw.qse.is.core.api.IssueWriter;
 import com.github.jochenw.qse.is.core.api.Logger;
@@ -26,8 +30,10 @@ import com.github.jochenw.qse.is.core.rules.AbstractRule;
 import com.github.jochenw.qse.is.core.rules.PackageScannerRule;
 import com.github.jochenw.qse.is.core.rules.RulesParser;
 import com.github.jochenw.qse.is.core.sax.Sax;
+import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 import com.github.jochenw.qse.is.core.scan.WorkspaceScanner;
+
 
 public class Scanner {
 	public static interface Result {
@@ -36,12 +42,11 @@ public class Scanner {
 		public int getNumberOfOtherIssues();
 	}
 
-	@Inject IComponentFactory componemtFactory;
+	@Inject IComponentFactory componentFactory;
 	@Inject IPluginRegistry pluginRegistry;
 	@Inject Logger logger;
 	@Inject IsWorkspace workspace;
 	private final List<Rule> rules = new ArrayList<>();
-	private Path baseDir;
 	private boolean immutable;
 
 	protected void makeImmutable() {
@@ -63,15 +68,16 @@ public class Scanner {
 		pluginRegistry.addPlugin(Finalizer.class, pFinalizer);
 	}
 
-	public void setBaseDir(Path pBaseDir) {
-		baseDir = pBaseDir;
+	public IComponentFactory getComponentFactory() {
+		return componentFactory;
 	}
-
+	
 	public void run() {
 		makeImmutable();
-		final List<PackageFileConsumer> packageFileConsumers = pluginRegistry.getPlugins(PackageFileConsumer.class);
-		WorkspaceScanner workspaceScanner = new WorkspaceScanner(getWorkspace(), getPluginRegistry());
-		workspaceScanner.scan(baseDir, packageFileConsumers);
+		IWorkspaceScanner workspaceScanner = getComponentFactory().requireInstance(IWorkspaceScanner.class);
+		final IWorkspaceScanner.Context context = getComponentFactory().requireInstance(IWorkspaceScanner.Context.class);
+		context.setScanner(this);
+		workspaceScanner.scan(context);
 		pluginRegistry.forEach(Finalizer.class, (f) -> f.run());
 	}
 
@@ -87,17 +93,25 @@ public class Scanner {
 		return logger;
 	}
 
-	public static Scanner newInstance(Path pRulesFile, Logger pLogger) {
-		final IComponentFactory cf = new SimpleComponentFactoryBuilder()
+	public static Scanner newInstance(Path pRulesFile, Logger pLogger, Module pModule, Module... pOtherModules) {
+		Objects.requireNonNull(pLogger, "Logger");
+		Objects.requireNonNull(pModule, "Module");
+		final SimpleComponentFactoryBuilder cfb = new SimpleComponentFactoryBuilder()
 				.module((b) -> {
 					b.bind(IsWorkspace.class).toInstance(new IsWorkspace());
+					b.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class);
 					b.bind(Scanner.class);
 					DefaultPluginRegistry pluginRegistry = new DefaultPluginRegistry();
 					pluginRegistry.addExtensionPoint(PackageFileConsumer.class);
 					pluginRegistry.addExtensionPoint(Finalizer.class);
 					b.bind(IPluginRegistry.class).toInstance(pluginRegistry);
 					b.bind(Logger.class).toInstance(pLogger);
-				}).build();
+				})
+				.module(pModule);
+		if (pOtherModules != null) {
+			cfb.modules(pOtherModules);
+		}
+		final IComponentFactory cf = cfb.build();
 		final Scanner scanner = cf.getInstance(Scanner.class);
 		scanner.add(new PackageScannerRule());
 		final Consumer<RulesParser.Rule> rulesConsumer = (r) -> configure(scanner, r);
@@ -154,9 +168,16 @@ public class Scanner {
 		} else {
 			scanDir = pScanDir;
 		}
-		final Scanner scanner = newInstance(pRulesFile, pLogger);
+		final Module module = new Module() {
+			@Override
+			public void configure(Binder pBinder) {
+				final IWorkspaceScanner.Context context = new WorkspaceScanner.Context(scanDir);
+				pBinder.bind(IWorkspaceScanner.class).to(WorkspaceScanner.class).in(Scopes.SINGLETON);
+				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
+			}
+		};
+		final Scanner scanner = newInstance(pRulesFile, pLogger, module);
 		try (IssueWriter writer = new IssueWriter(pOut, pCloseOut, pPrettyPrint)) {
-			scanner.setBaseDir(scanDir);
 			scanner.getWorkspace().addListener(writer);
 			scanner.run();
 			final Result result = writer.getResult();

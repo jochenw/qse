@@ -3,6 +3,10 @@
   <rule enabled="true" class="com.github.jochenw.qse.is.core.rules.PipelineDebugRule" severity="ERROR">
     <property name="permittedValues">0,1</property>
   </rule>
+  <!-- The following two entries demonstrate, that you can use a plugin more than once, with different
+       configurations, by specifying an id attribute. By default, the plugin id is the plugins unqualified
+       class name. (The fully qualified class name, with the package removed.)
+   -->
   <rule enabled="true" id="DebugLogRule" class="com.github.jochenw.qse.is.core.rules.ForbiddenServicesRule" severity="ERROR">
     <listProperty name="serviceNames">
       <value>pub.flow:debugLog</value>
