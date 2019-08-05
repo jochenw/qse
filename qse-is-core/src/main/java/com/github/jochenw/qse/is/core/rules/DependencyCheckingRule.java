@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
+import com.github.jochenw.afw.core.util.Strings;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.FlowConsumer;
 import com.github.jochenw.qse.is.core.api.IServiceInvocationListener;
@@ -86,6 +87,7 @@ public class DependencyCheckingRule extends AbstractRule {
 			
 			@Override
 			public void packageStarting(IsPackage pPackage) {
+				System.out.println("packageStarting: " + pPackage.getName());
 				warnedDependencies.clear();
 			}
 		});
@@ -106,6 +108,7 @@ public class DependencyCheckingRule extends AbstractRule {
 										break;
 									}
 								}
+								System.out.println("serviceInvocation: " + pSource.getQName() + " ->" + pTarget.getQName() + ", " + Strings.toString(warnedDependencies));
 								final String packageNamesStr = dependencySpec.getPackageNamesStr();
 								if (!hasDependency  &&  !warnedDependencies.contains(packageNamesStr)) {
 									warnedDependencies.add(packageNamesStr);

@@ -45,9 +45,7 @@ public class PackageScannerRule extends AbstractRule implements PackageFileConsu
 		final IsPackage pkg = pContext.getPackage();
 		if (pkg != null) {
 			String uri = pContext.getLocalPath();
-			System.out.println(uri);
 			if (uri == null) {
-				System.out.println("Null URI: " + ctx.getFile());
 			} else if (uri.endsWith(manifestFileName)) {
 				final String expectedUri = pkg.getName() + manifestFileName;
 				if (!expectedUri.equals(uri)) {

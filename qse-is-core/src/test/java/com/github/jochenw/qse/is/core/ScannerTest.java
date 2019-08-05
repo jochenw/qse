@@ -2,12 +2,15 @@ package com.github.jochenw.qse.is.core;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 
@@ -20,10 +23,14 @@ import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
 
 
 public class ScannerTest {
+	private final long seed = 1564926475992l; // System.currentTimeMillis() at the time, this test was written.
+	private final Random random = new Random(seed);
+
 	public static class MyIssue implements Issue {
 		private boolean expected;
 		private final Severity severity;
@@ -61,9 +68,9 @@ public class ScannerTest {
 			return severity;
 		}
 	}
+
 	@Test
-	public void testPackagesDir() {
-		final List<MyIssue> issues = new ArrayList<>();
+	public void testPackagesDirWithDefaultScanner() {
 		final Path path = Paths.get("src/test/resources/packages");
 		assertTrue(Files.isDirectory(path));
 		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
@@ -78,9 +85,57 @@ public class ScannerTest {
 			}
 		};
 		final Scanner scanner = Scanner.newInstance(null, logger, module);
-		final IssueConsumer ic = (i) -> issues.add(new MyIssue(i));
-		scanner.getWorkspace().addListener(ic);
-		scanner.run();
+		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
+			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service jwi.scratch.messageCatalog:serviceOverridingSeverity in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalog, but neither of the following packages is declared as a dependency: WxLog");
+		};
+		validate(scanner, issueConsumer);
+	}
+
+	@Test
+	public void testPackagesDirWithSonarScanner() {
+		final Path path = Paths.get("src/test/resources/packages");
+		assertTrue(Files.isDirectory(path));
+		final List<File> allFiles = findFilesForSonarScanner(path);
+		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
+		logger.setDebugEnabled(true);
+		logger.setTraceEnabled(true);
+		final Module module = new Module() {
+			@Override
+			public void configure(Binder pBinder) {
+				final SonarWorkspaceScanner.SonarWSContext context = new SonarWorkspaceScanner.SonarWSContext(allFiles);
+				pBinder.bind(IWorkspaceScanner.class).to(SonarWorkspaceScanner.class);
+				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
+			}
+		};
+		final Scanner scanner = Scanner.newInstance(null, logger, module);
+		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
+			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev",  "The flow service jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalogDev, but neither of the following packages is declared as a dependency: WxLog");
+		};
+		validate(scanner, issueConsumer);
+	}
+
+	private List<File> findFilesForSonarScanner(final Path path) {
+		final List<File> files = com.github.jochenw.qse.is.core.util.Files.findFiles(path);
+		final List<File> randomFiles = new ArrayList<>(files.size());
+		while (!files.isEmpty()) {
+			final int index = random.nextInt(files.size());
+			randomFiles.add(files.remove(index));
+		}
+		return randomFiles;
+	}
+
+	private void validate(Scanner pScanner, Consumer<List<MyIssue>> pIssueConsumer) {
+		final List<MyIssue> issues = new ArrayList<>();
+		final IssueConsumer ic = (i) -> {
+			System.out.println("Issue: package=" + i.getPackage()
+			                   + ", severity=" + i.getSeverity()
+			                   + ", rule=" + i.getRule()
+			                   + ", errorCode=" + i.getErrorCode()
+			                   + ", message=" + i.getMessage());
+			issues.add(new MyIssue(i));
+		};
+		pScanner.getWorkspace().addListener(ic);
+		pScanner.run();
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "PipelineDebugRule", ErrorCodes.PIPELINE_DEBUG_USE, "jwi.scratch.pipelineDebug:pipelineDebugSave", "A flow service must have Pipeline debug=None");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLog", "Use of forbidden service: pub.flow:debugLog");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "DebugLogRule", ErrorCodes.FORBIDDEN_SVC, "jwi.scratch.forbiddenServices:serviceUsingDebugLogInTransformer", "Use of forbidden service: pub.flow:debugLog");
@@ -99,8 +154,14 @@ public class ScannerTest {
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_INCLUDE_PIPELINE, "jwi.scratch.auditSettings.restServices:_post", "Invalid value for Audit/Include pipeline: Expected 1, got 2");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_LOG_ON, "jwi.scratch.auditSettings.ws.provider:wsServiceFail", "Invalid value for Audit/Log On: Expected 0, got 1");
 		assertIssue(issues, Severity.ERROR, "StartupServicePackage", "StartupServiceRule", ErrorCodes.STARTUP_SERVICE_UNKNOWN, "StartupServicePackage/manifest.v3", "Startup service com.foo.mypkg.admin:startup is not present in package StartupServicePackage");
-		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service jwi.scratch.messageCatalog:serviceOverridingSeverity in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalog, but neither of the following packages is declared as a dependency: WxLog");
 		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.missingDependencies:serviceUsingWxConfig",  "The flow service jwi.scratch.missingDependencies:serviceUsingWxConfig in package JwiScratch invokes the service wx.config.pub:getValue, but neither of the following packages is declared as a dependency: WxConfig");
+		if (pIssueConsumer != null) {
+			/* Some issues may vary, depending on the workspace scanner, because they depend on the order
+			 * of events, which in turn depends on the order of files, that are being scanned.
+			 * So we support checking for additional issues here.
+			 */
+			pIssueConsumer.accept(issues);
+		}
 
 		for (MyIssue issue : issues) {
 			if (!issue.expected) {
