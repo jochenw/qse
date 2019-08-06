@@ -2,3 +2,10 @@
 /.project
 /.classpath
 /qse-lin-core/nbactions.xml
+qse-is-core/src/test/resources/packages/\.scannerwork/
+
+qse-is-sonar-plugin/\.classpath
+
+qse-is-sonar-plugin/\.project
+
+qse-is-sonar-plugin/\.settings/
