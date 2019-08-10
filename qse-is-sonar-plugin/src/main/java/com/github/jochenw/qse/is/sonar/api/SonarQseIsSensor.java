@@ -3,6 +3,7 @@ package com.github.jochenw.qse.is.sonar.api;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,16 +18,25 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
+import com.github.jochenw.qse.is.core.Scanner;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
 import com.github.jochenw.qse.is.sonar.api.Log.ILog;
 import com.github.jochenw.qse.is.sonar.api.Log.IMLog;
 
 public class SonarQseIsSensor implements Sensor {
 	private static final Logger log = LoggerFactory.getLogger(SonarQseIsSensor.class);
+	private final Configuration configuration;
 
+	public SonarQseIsSensor(Configuration pConfiguration) {
+		configuration = pConfiguration;
+	}
+	
 	@Override
 	public void describe(SensorDescriptor pDescriptor) {
 		log.debug("describe: ->");
@@ -45,10 +55,10 @@ public class SonarQseIsSensor implements Sensor {
 		log.debug("execute: -> sonarQubeVersion={}", pContext.getSonarQubeVersion());
 	    FileSystem fs = pContext.fileSystem();
 	    Iterable<InputFile> flowFiles = fs.inputFiles(fs.predicates().all());
-	    ArrayList<File> files = new ArrayList<File>();
+	    List<File> files = new ArrayList<File>();
 	    Map<String,InputComponent> inputComponents = new HashMap<>();
 	    for (InputFile inputFile : flowFiles) {
-	    	final File f;
+	    	final File f = getFile(inputFile);
 	    	files.add(f);
 	    	inputComponents.put(f.getPath(), inputFile);
 	    }
@@ -58,36 +68,41 @@ public class SonarQseIsSensor implements Sensor {
 	    	if (iComp == null) {
 	    		throw new NullPointerException("No input component for file: " + uri);
 	    	}
-	    	final NewIssue issue = pContext.newIssue();
-	    	final NewIssueLocation loc = issue.newLocation().on(iComp).message(i.getMessage());
-	    	issue.at(loc).forRule(RuleKey.of(repository, rule))
-	    			
-	    			
-	    			
-	    			
-	    	final NewIssueLocation nil = DefaultIssueLocation.on(iComp)
-	    			.message(i.getMessage());
-				
-				@Override
-				public NewIssueLocation on(InputComponent component) {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public NewIssueLocation message(String message) {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public NewIssueLocation at(TextRange location) {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			};
 	    };
+	    final IssueConsumer ic = newIssueConsumer(pContext, inputComponents);
+	    final Scanner scanner = new SonarQseIsScannerProvider(configuration).createScanner(configuration, files);
+	    scanner.getWorkspace().addListener(ic);
+	    scanner.run();
 	    log.debug("execute: <-");
 	}
 
+	protected IssueConsumer newIssueConsumer(SensorContext pContext, Map<String,InputComponent> pInputComponents) {
+		return (i) -> {
+			final String uri = i.getUri();
+			final InputComponent iComp = pInputComponents.get(uri);
+			if (iComp == null) {
+				throw new IllegalStateException("No InputComponent found for uri: " + uri);
+			}
+			final NewIssue issue = pContext.newIssue();
+			final NewIssueLocation loc = issue.newLocation().on(iComp).message(i.getMessage());
+			final String severity;
+			switch(i.getSeverity()) {
+			case ERROR:
+				severity = Severity.MAJOR;
+				break;
+			case WARN:
+				severity = Severity.MINOR;
+				break;
+			case INFO:
+				severity = Severity.INFO;
+				break;
+			default:
+				throw new IllegalStateException("Invalid severity, expected ERROR|WARN|INFO, got " + i.getSeverity());
+			}
+			issue.at(loc).forRule(new RuleKey(SonarQseIsConstants.RULE_REPOSITORY_ID,
+					                          i.getRule() + ": " + i.getErrorCode()))
+			     .overrideSeverity(severity);
+			};
+		};
+	}
 }

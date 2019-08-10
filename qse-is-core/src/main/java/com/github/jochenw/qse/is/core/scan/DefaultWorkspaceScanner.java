@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.afw.core.util.Sax;
+import com.github.jochenw.qse.is.core.Scanner;
 import com.github.jochenw.qse.is.core.model.IsPackage;
 import com.github.jochenw.qse.is.core.model.IsWorkspace;
 import com.github.jochenw.qse.is.core.model.NSName;
@@ -21,21 +22,17 @@ import com.github.jochenw.qse.is.core.rules.ManifestParser;
 import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener;
 
 public class DefaultWorkspaceScanner implements IWorkspaceScanner {
-	public static class DefaultWSContext extends com.github.jochenw.qse.is.core.scan.IWorkspaceScanner.Context {
-		private final Path baseDir;
-
-		public DefaultWSContext(Path pBaseDir) {
-			baseDir = pBaseDir;
-		}
-
-		public Path getBaseDir() {
-			return baseDir;
-		}
-	}
+	private final Path baseDir;
 	private @Inject IsWorkspace workspace;
 	private @Inject IPluginRegistry pluginRegistry;
 
-	public void scan(Path baseDir, List<PackageFileConsumer> pPackageFileConsumers) {
+	public DefaultWorkspaceScanner(Path baseDir) {
+		super();
+		this.baseDir = baseDir;
+	}
+
+	@Override
+	public void scan(Scanner pScanner, List<PackageFileConsumer> pPackageFileConsumers) {
 		final ContextImpl context = new ContextImpl();
 		final FileVisitor<Path> visitor = newVisitor(context, pPackageFileConsumers);
 		try {
@@ -155,11 +152,5 @@ public class DefaultWorkspaceScanner implements IWorkspaceScanner {
 				return super.postVisitDirectory(pDir, pExc);
 			}
 		};
-	}
-
-	@Override
-	public void scan(com.github.jochenw.qse.is.core.scan.IWorkspaceScanner.Context pContext) {
-		final DefaultWSContext context = (DefaultWSContext) pContext;
-		scan(context.getBaseDir(), context.getScanner().getPluginRegistry().getPlugins(PackageFileConsumer.class));
 	}
 }

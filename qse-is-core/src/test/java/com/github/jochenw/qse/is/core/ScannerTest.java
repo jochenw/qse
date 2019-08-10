@@ -21,8 +21,10 @@ import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
+import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.NullWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
 
@@ -76,15 +78,7 @@ public class ScannerTest {
 		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
 		logger.setDebugEnabled(true);
 		logger.setTraceEnabled(true);
-		final Module module = new Module() {
-			@Override
-			public void configure(Binder pBinder) {
-				final DefaultWorkspaceScanner.DefaultWSContext context = new DefaultWorkspaceScanner.DefaultWSContext(path);
-				pBinder.bind(IWorkspaceScanner.class).to(DefaultWorkspaceScanner.class).in(Scopes.SINGLETON);
-				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
-			}
-		};
-		final Scanner scanner = Scanner.newInstance(null, logger, module);
+		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new DefaultWorkspaceScanner(path)).build();
 		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
 			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service jwi.scratch.messageCatalog:serviceOverridingSeverity in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalog, but neither of the following packages is declared as a dependency: WxLog");
 		};
@@ -99,15 +93,7 @@ public class ScannerTest {
 		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
 		logger.setDebugEnabled(true);
 		logger.setTraceEnabled(true);
-		final Module module = new Module() {
-			@Override
-			public void configure(Binder pBinder) {
-				final SonarWorkspaceScanner.SonarWSContext context = new SonarWorkspaceScanner.SonarWSContext(allFiles);
-				pBinder.bind(IWorkspaceScanner.class).to(SonarWorkspaceScanner.class);
-				pBinder.bind(IWorkspaceScanner.Context.class).toInstance(context);
-			}
-		};
-		final Scanner scanner = Scanner.newInstance(null, logger, module);
+		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new SonarWorkspaceScanner(() -> allFiles)).build();
 		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
 			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev",  "The flow service jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalogDev, but neither of the following packages is declared as a dependency: WxLog");
 		};
@@ -215,5 +201,10 @@ public class ScannerTest {
 			                   + ", expected=" + issue.expected
 			                   + ", message=" + issue.getMessage());
 		}
+	}
+
+	@Test
+	public void testNullWorkspaceScanner() {
+		final Scanner scanner = new ScannerBuilder(null).logger(Logger.getNullLogger()).workspaceScanner(new NullWorkspaceScanner()).build();
 	}
 }

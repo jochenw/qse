@@ -70,7 +70,7 @@ public class SonarWorkspaceScannerTest {
 	public void testAllFiles() {
 		for (int i = 0;  i < 100;  i++) {
 			final List<File> files = new ArrayList<File>(getAllOnePackageFiles());
-			final SonarWorkspaceScanner sws = new SonarWorkspaceScanner();
+			final SonarWorkspaceScanner sws = new SonarWorkspaceScanner(() -> files);
 			final Map<String,SonarResource> packages = sws.getPackages(files);
 			assertNotNull(packages);
 			assertEquals(1, packages.size());
@@ -89,7 +89,7 @@ public class SonarWorkspaceScannerTest {
 	public void testSomePackages() {
 		for (int i = 0;  i < 100;  i++) {
 			final List<File> files = getSomePackageFiles();
-			final SonarWorkspaceScanner sws = new SonarWorkspaceScanner();
+			final SonarWorkspaceScanner sws = new SonarWorkspaceScanner(() -> files);
 			final Map<String,SonarResource> packages = sws.getPackages(files);
 			assertNotNull(packages);
 			assertEquals(2, packages.size());

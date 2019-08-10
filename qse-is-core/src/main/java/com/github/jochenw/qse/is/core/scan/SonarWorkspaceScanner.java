@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.github.jochenw.afw.core.util.Sax;
 import com.github.jochenw.qse.is.core.Scanner;
@@ -21,6 +22,13 @@ import com.github.jochenw.qse.is.core.rules.PackageScannerRule.IsPackageListener
 import com.github.jochenw.qse.is.core.util.Files;
 
 public class SonarWorkspaceScanner implements IWorkspaceScanner {
+	private final Supplier<List<File>> fileListSupplier;
+	
+	public SonarWorkspaceScanner(Supplier<List<File>> pFileListSupplier) {
+		super();
+		fileListSupplier = pFileListSupplier;
+	}
+
 	public interface SonarResource {
 		String getPackage();
 		String getUri();
@@ -61,17 +69,6 @@ public class SonarWorkspaceScanner implements IWorkspaceScanner {
 		@Override
 		public InputStream open() throws IOException {
 			return new FileInputStream(file);
-		}
-	}
-	public static class SonarWSContext extends Context {
-		private final List<File> files;
-
-		public SonarWSContext(List<File> pFiles) {
-			files = pFiles;
-		}
-
-		public List<File> getFiles() {
-			return files;
 		}
 	}
 
@@ -147,21 +144,19 @@ public class SonarWorkspaceScanner implements IWorkspaceScanner {
 	}
 	
 	@Override
-	public void scan(Context pContext) {
-		final Scanner scanner = pContext.getScanner();
-		final Logger logger = scanner.getLogger();
+	public void scan(Scanner pScanner, List<PackageFileConsumer> pListeners) {
+		final Logger logger = pScanner.getLogger();
 		logger.info("scan: ->");
-		final SonarWSContext context = (SonarWSContext) pContext;
-		final List<File> files = context.getFiles();
+		final List<File> files = fileListSupplier.get();
 		final Map<String,SonarResource> packages = getPackages(files);
 		logger.info("Found " + packages.size() + " IS Packages");
 		if (packages.isEmpty()) {
 			throw new IllegalStateException("No IS Package found.");
 		}
 		final PackageFileConsumerImpl pfci = new PackageFileConsumerImpl();
-		final IsWorkspace isWorkspace = scanner.getWorkspace();
-		final List<PackageFileConsumer> pfConsumers = scanner.getPluginRegistry().getPlugins(PackageFileConsumer.class);
-		final List<IsPackageListener> packageListeners = scanner.getPluginRegistry().getPlugins(IsPackageListener.class);
+		final IsWorkspace isWorkspace = pScanner.getWorkspace();
+		final List<PackageFileConsumer> pfConsumers = pScanner.getPluginRegistry().getPlugins(PackageFileConsumer.class);
+		final List<IsPackageListener> packageListeners = pScanner.getPluginRegistry().getPlugins(IsPackageListener.class);
 		for (Map.Entry<String,SonarResource> en : packages.entrySet()) {
 			final String packageName = en.getKey();
 			final SonarResourceImpl manifestResource = (SonarResourceImpl) en.getValue();
