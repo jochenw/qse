@@ -16,30 +16,41 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 
 import com.github.jochenw.qse.is.core.Scanner;
+import com.github.jochenw.qse.is.core.ScannerBuilder;
 import com.github.jochenw.qse.is.core.api.FileLogger;
+import com.github.jochenw.qse.is.core.api.Rule;
+import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
+import com.github.jochenw.qse.is.core.scan.NullWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
 
 
 public class SonarQseIsScannerProvider {
 	private static final Logger log = LoggerFactory.getLogger(SonarQseIsScannerProvider.class);
-	private Scanner scanner;
+	private final Configuration configuration;
 
 	public SonarQseIsScannerProvider(Configuration pConfiguration) {
+		configuration = pConfiguration;
 	}
 
 	public List<Rule> getRules() {
-		if (scanner == null) {
-			return null;
-		} else {
-			return scanner.getRules();
-		}
+		final Scanner scanner = new ScannerBuilder(getRulesFile()).logger(com.github.jochenw.qse.is.core.api.Logger.getNullLogger()).workspaceScanner(new NullWorkspaceScanner()).build();
+		return scanner.getRules();
 	}
 	
-	@SuppressWarnings("resource")
 	protected Scanner createScanner(Configuration pConfiguration, List<File> pFiles) {
 		log.debug("createScanner: ->");
-		final Optional<String> logFileOptional = pConfiguration.get(PROPERTY_SONAR_QSE_IS_LOG_FILE);
+		final com.github.jochenw.qse.is.core.api.Logger logger = getLogger(configuration);
+		log.debug("createScanner: Created Logger {}", logger.getClass().getName());
+		final Path rulesFile = getRulesFile();
+		final IWorkspaceScanner wsScanner = new SonarWorkspaceScanner(() -> pFiles);
+		final Scanner scan = new ScannerBuilder(rulesFile).logger(logger).workspaceScanner(wsScanner).build();
+		log.debug("createScanner: <- " + scan);
+		return scan;
+	}
+
+	protected com.github.jochenw.qse.is.core.api.Logger getLogger(final Configuration pConfiguration) {
 		final com.github.jochenw.qse.is.core.api.Logger logger;
+		final Optional<String> logFileOptional = pConfiguration.get(PROPERTY_SONAR_QSE_IS_LOG_FILE);
 		if (logFileOptional.isPresent()) {
 			final String logFileStr = logFileOptional.get();
 			if (logFileStr.length() == 0) {
@@ -64,20 +75,19 @@ public class SonarQseIsScannerProvider {
 		} else {
 			logger = new Slf4jLogger();
 		}
-		log.debug("createScanner: Created Logger {}", logger.getClass().getName());
-		final Optional<String> rulesFileOptional = pConfiguration.get(PROPERTY_SONAR_QSE_IS_RULES_FILE);
-		final Path rulesFile;
+		return logger;
+	}
+
+	protected Path getRulesFile() {
+		final Optional<String> rulesFileOptional = configuration.get(PROPERTY_SONAR_QSE_IS_RULES_FILE);
 		if (rulesFileOptional.isPresent()) {
-			rulesFile = Paths.get(rulesFileOptional.get());
+			final Path rulesFile = Paths.get(rulesFileOptional.get());
 			if (!Files.isReadable(rulesFile)) {
 				throw new IllegalArgumentException("The specified rules file doesn't exist, or is unreadable: " + rulesFile);
 			}
+			return rulesFile;
 		} else {
-			rulesFile = null;
+			return null;
 		}
-		final Scanner scan = Scanner.newInstance(SonarWorkspaceScanner.class, new SonarWorkspaceScanner.SonarWSContext(pFiles),
-				                                 logger, rulesFile);
-		log.debug("createScanner: <- " + scan);
-		return scan;
 	}
 }

@@ -11,23 +11,17 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 
 import com.github.jochenw.qse.is.core.Scanner;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
-import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
-import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
-import com.github.jochenw.qse.is.sonar.api.Log.ILog;
-import com.github.jochenw.qse.is.sonar.api.Log.IMLog;
+
 
 public class SonarQseIsSensor implements Sensor {
 	private static final Logger log = LoggerFactory.getLogger(SonarQseIsSensor.class);
@@ -62,13 +56,6 @@ public class SonarQseIsSensor implements Sensor {
 	    	files.add(f);
 	    	inputComponents.put(f.getPath(), inputFile);
 	    }
-	    final IssueConsumer ic = (i) -> {
-	    	final String uri = i.getUri();
-	    	final InputComponent iComp = inputComponents.get(uri);
-	    	if (iComp == null) {
-	    		throw new NullPointerException("No input component for file: " + uri);
-	    	}
-	    };
 	    final IssueConsumer ic = newIssueConsumer(pContext, inputComponents);
 	    final Scanner scanner = new SonarQseIsScannerProvider(configuration).createScanner(configuration, files);
 	    scanner.getWorkspace().addListener(ic);
@@ -85,24 +72,8 @@ public class SonarQseIsSensor implements Sensor {
 			}
 			final NewIssue issue = pContext.newIssue();
 			final NewIssueLocation loc = issue.newLocation().on(iComp).message(i.getMessage());
-			final String severity;
-			switch(i.getSeverity()) {
-			case ERROR:
-				severity = Severity.MAJOR;
-				break;
-			case WARN:
-				severity = Severity.MINOR;
-				break;
-			case INFO:
-				severity = Severity.INFO;
-				break;
-			default:
-				throw new IllegalStateException("Invalid severity, expected ERROR|WARN|INFO, got " + i.getSeverity());
-			}
-			issue.at(loc).forRule(new RuleKey(SonarQseIsConstants.RULE_REPOSITORY_ID,
-					                          i.getRule() + ": " + i.getErrorCode()))
-			     .overrideSeverity(severity);
-			};
+			issue.at(loc).forRule(RuleKey.of(SonarQseIsConstants.RULE_REPOSITORY_ID,
+					                          i.getRule() + ": " + i.getErrorCode()));
 		};
 	}
 }
