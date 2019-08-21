@@ -27,7 +27,7 @@ import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 public class PackageScannerRule extends AbstractRule implements PackageFileConsumer {
 	public interface IsPackageListener {
 		public void packageStarting(IsPackage pPackage);
-		public void packageStopping();
+		public void packageStopping(IsPackage pPackage);
 	}
 	@Override
 	protected void accept(@Nonnull IPluginRegistry pRegistry) {

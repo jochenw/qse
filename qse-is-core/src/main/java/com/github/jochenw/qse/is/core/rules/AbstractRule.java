@@ -1,5 +1,11 @@
 package com.github.jochenw.qse.is.core.rules;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -85,5 +91,45 @@ public class AbstractRule implements Rule {
 
 	protected void issue(@Nonnull IsPackage pPackage, @Nonnull String pUri, @Nonnull String pErrorCode, @Nonnull String pDetails, @Nonnull Severity pSeverity) {
 		getWorkspace().issue(this, pPackage, pUri, pErrorCode, pSeverity, pDetails);
+	}
+
+	public static class ServiceListDescription {
+		private final String firstService, serviceNameListDescription;
+		public ServiceListDescription(String pFirstService, String pServiceNameListDescription) {
+			firstService = pFirstService;
+			serviceNameListDescription = pServiceNameListDescription;
+		}
+		public String getFirstService() {
+			return firstService;
+		}
+		public String getServiceNameListDescription() {
+			return serviceNameListDescription;
+		}
+	}
+	protected ServiceListDescription getServiceListDescription(Collection<String> pServiceNames) {
+		final List<String> list = new ArrayList<>(pServiceNames);
+		Collections.sort(list, Collator.getInstance(Locale.US));
+		if (list.isEmpty()) {
+			throw new IllegalStateException("The service name list is empty.");
+		} else {
+			final String firstServiceName = list.get(0);
+			if (list.size() == 1) {
+				return new ServiceListDescription(firstServiceName, firstServiceName);
+			} else {
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0;  i < Math.min(list.size(), 3);  i++) {
+					if (i > 0) {
+						sb.append(", ");
+					}
+					sb.append(list.get(i));
+				}
+				if (list.size() > 3) {
+					sb.append(", and ");
+					sb.append(list.size()-3);
+					sb.append(" others");
+				}
+				return new ServiceListDescription(firstServiceName, sb.toString());
+			}
+		}
 	}
 }

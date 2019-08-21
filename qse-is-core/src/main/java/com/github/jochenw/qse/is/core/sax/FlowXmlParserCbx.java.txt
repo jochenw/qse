@@ -17,7 +17,7 @@ import com.github.jochenw.qse.is.core.sax.FlowServiceData.FieldInfo;
 import com.github.jochenw.qse.is.core.sax.FlowServiceData.MapData;
 import com.github.jochenw.qse.is.core.sax.FlowServiceData.MapStep;
 
-public class FlowXmlParser extends AbstractXmlParser {
+public class FlowXmlParserCbx extends AbstractXmlParser {
 	private static final String NS = XMLConstants.NULL_NS_URI;
 
 	protected FlowServiceData parseFlowXml(Document pDocument) {
@@ -25,7 +25,7 @@ public class FlowXmlParser extends AbstractXmlParser {
 		final Element flowElement = assertElement(pDocument.getDocumentElement(), NS, "FLOW", "VERSION", ANY);
 		fsd.setVersion(flowElement.getAttribute("VERSION"));
 		fsd.setCleanup(asBoolean(flowElement.getAttribute("CLEANUP")));
-		parseSequence(flowElement, s -> fsd.addStep(s));
+		parseSequence(flowElement, s -> fsd.pushStep(s));
 		return fsd;
 	}
 
@@ -65,7 +65,7 @@ public class FlowXmlParser extends AbstractXmlParser {
 			if (s.getLabel() == null  ||  s.getLabel().trim().isEmpty()) {
 				throw error(pElement, "Missing, or empty label for branch step");
 			}
-			br.addStep(s);
+			br.pushStep(s);
 		});
 		return br;
 	}
@@ -76,7 +76,7 @@ public class FlowXmlParser extends AbstractXmlParser {
 		final String label = pElement.getAttribute("NAME");
 		step.setComment(comment);
 		step.setLabel(label);
-		parseSequence(pElement, s -> step.addStep(s));
+		parseSequence(pElement, s -> step.pushStep(s));
 		return step;
 	}
 

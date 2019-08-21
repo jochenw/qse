@@ -132,10 +132,10 @@ public class DefaultWorkspaceScanner implements IWorkspaceScanner {
 			public FileVisitResult postVisitDirectory(Path pDir, IOException pExc) throws IOException {
 				if (currentIsPackage != null) {
 					if (level == currentIsPackageLevel) {
-						currentIsPackage = null;
 						for (IsPackageListener ipl : packageListeners) {
-							ipl.packageStopping();
+							ipl.packageStopping(currentIsPackage);
 						}
+						currentIsPackage = null;
 						pContext.setPackage(null);
 						pContext.setLocalPath(null);
 						pContext.setFile(null);

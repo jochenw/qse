@@ -15,7 +15,9 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
 import com.github.jochenw.qse.is.core.sax.AbstractContentHandler.TerminationRequest;
@@ -156,5 +158,25 @@ public class Sax {
 			}
 		}
 		return result;
+	}
+
+	public static void assertDefaultNamespace(String pUri, String pLocalName) throws SAXException {
+		if (pUri != null  &&  pUri.length() > 0) {
+			throw new SAXException("Expected default namespace, got element " + asQName(pUri, pLocalName));
+		}
+	}
+
+	public static void assertDefaultNamespace(String pUri, String pLocalName, Locator pLocator) throws SAXException {
+		if (pUri != null  &&  pUri.length() > 0) {
+			throw new SAXParseException("Expected default namespace, got element " + asQName(pUri, pLocalName), pLocator);
+		}
+	}
+
+	public static String asQName(String pUri, String pLocalName) {
+		if (pUri == null  ||  pUri.length() == 0) {
+			return pLocalName;
+		} else {
+			return '{' + pUri + '}' + pLocalName;
+		}
 	}
 }

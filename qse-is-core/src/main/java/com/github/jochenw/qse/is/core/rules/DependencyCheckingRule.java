@@ -1,9 +1,18 @@
 package com.github.jochenw.qse.is.core.rules;
 
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.afw.core.util.Strings;
@@ -75,14 +84,24 @@ public class DependencyCheckingRule extends AbstractRule {
 		}
 	}
 
-	private final Set<String> warnedDependencies = new HashSet<>();
+	private final Map<String,Set<String>> warnedDependencies = new HashMap<>();
 	
 	@Override
 	protected void accept(IPluginRegistry pRegistry) {
 		pRegistry.addPlugin(IsPackageListener.class, new IsPackageListener() {
 			@Override
-			public void packageStopping() {
-				// Does nothing;
+			public void packageStopping(IsPackage pPkg) {
+				for (Map.Entry<String,Set<String>> en : warnedDependencies.entrySet()) {
+					final String packageNamesStr = en.getKey();
+					final Set<String> serviceNames = en.getValue();
+					final ServiceListDescription sld = getServiceListDescription(serviceNames);
+					
+					final String msg = "The flow service(s) " + sld.getServiceNameListDescription() + " in package " + pPkg.getName()
+							+ " seem to be referencing either of the following packages , none of which is declared as a dependency: "
+							+ packageNamesStr;
+					issue(pPkg, sld.getFirstService(), ErrorCodes.DEPENDENCY_MISSING,
+						  msg);
+				}
 			}
 			
 			@Override
@@ -110,15 +129,13 @@ public class DependencyCheckingRule extends AbstractRule {
 								}
 								System.out.println("serviceInvocation: " + pSource.getQName() + " ->" + pTarget.getQName() + ", " + Strings.toString(warnedDependencies));
 								final String packageNamesStr = dependencySpec.getPackageNamesStr();
-								if (!hasDependency  &&  !warnedDependencies.contains(packageNamesStr)) {
-									warnedDependencies.add(packageNamesStr);
-									final String msg = "The flow service "
-											+ pContext.getNode().getName().getQName() + " in package " + pkg.getName()
-											+ " invokes the service " + pTarget.getQName()
-											+ ", but neither of the following packages is declared as a dependency: "
-											+ packageNamesStr;
-									issue(pkg, pContext.getNode().getName().getQName(), ErrorCodes.DEPENDENCY_MISSING,
-										  msg);
+								if (!hasDependency) {
+									Set<String> sourceServices = warnedDependencies.get(packageNamesStr);
+									if (sourceServices == null) {
+										sourceServices = new HashSet<String>();
+										warnedDependencies.put(packageNamesStr, sourceServices);
+									}
+									sourceServices.add(pSource.getQName());
 								}
 							}
 						}

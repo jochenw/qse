@@ -40,6 +40,12 @@ public abstract class AbstractContentHandler implements FinalizableContentHandle
 		collectLevel = pLevel;
 		collector = pCollector;
 	}
+	protected int incLevel() {
+		return level++;
+	}
+	protected int decLevel() {
+		return --level;
+	}
 	protected void startCollecting(Consumer<String> pCollector) {
 		startCollecting(level, pCollector);
 	}

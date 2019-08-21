@@ -31,7 +31,6 @@ public class StartupServiceRule extends AbstractRule {
 	@Override
 	protected void accept(IPluginRegistry pRegistry) {
 		pRegistry.addPlugin(IsPackageListener.class, new IsPackageListener() {
-
 			@Override
 			public void packageStarting(IsPackage pPackage) {
 				for (NSName name : pPackage.getStartupServices()) {
@@ -43,7 +42,7 @@ public class StartupServiceRule extends AbstractRule {
 			}
 
 			@Override
-			public void packageStopping() {
+			public void packageStopping(IsPackage pPackage) {
 				// Nothing to do
 			}
 			

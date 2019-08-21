@@ -195,7 +195,7 @@ public class SonarWorkspaceScanner implements IWorkspaceScanner {
 				pfci.setLocalPath(sri.uri);
 				pfConsumers.forEach((pfc) -> pfc.accept(pfci));
 			}
-			packageListeners.forEach((pl) -> pl.packageStopping());
+			packageListeners.forEach((pl) -> pl.packageStopping(isPkg));
 		}
 	}
 
