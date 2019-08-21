@@ -139,8 +139,6 @@ public class TreeBuildingVisitor implements FlowXmlVisitor {
 
 	protected void pushStep(Step pStep) {
 		Objects.requireNonNull(pStep);
-		System.out.println("pushStep: " + pStep.getClass().getSimpleName() + ", currentStep="
-				           + (currentStep == null ? "null" : currentStep.getClass().getSimpleName()));
 		if (currentStep != null) {
 			if (currentStep instanceof StepList) {
 				final StepList stepList = (StepList) currentStep;
@@ -152,7 +150,6 @@ public class TreeBuildingVisitor implements FlowXmlVisitor {
 	}
 
 	protected <S extends Step> S pullStep(Class<S> pType) {
-		final Step oldCurrentStep = currentStep;
 		final Step step = currentStep;
 		if (stepStack.isEmpty()) {
 			currentStep = null;
@@ -165,10 +162,6 @@ public class TreeBuildingVisitor implements FlowXmlVisitor {
 		}
 		@SuppressWarnings("unchecked")
 		final S s = (S) step;
-		System.out.println("pullStep: "
-				+ (oldCurrentStep == null ? "null" : oldCurrentStep.getClass().getSimpleName()) + "=>"
-				+ (currentStep == null ? "null" : currentStep.getClass().getName())
-				+ ", " + stepStack.size());
 		return s;
 	}
 	
