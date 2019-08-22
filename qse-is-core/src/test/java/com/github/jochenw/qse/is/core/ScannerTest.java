@@ -3,6 +3,7 @@ package com.github.jochenw.qse.is.core;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,8 +20,10 @@ import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
 import com.github.jochenw.afw.core.inject.Scopes;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
+import com.github.jochenw.qse.is.core.api.IssueWriter;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
+import com.github.jochenw.qse.is.core.api.IssueJsonWriter;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
@@ -79,10 +82,7 @@ public class ScannerTest {
 		logger.setDebugEnabled(true);
 		logger.setTraceEnabled(true);
 		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new DefaultWorkspaceScanner(path)).build();
-		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
-			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service jwi.scratch.messageCatalog:serviceOverridingSeverity in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalog, but neither of the following packages is declared as a dependency: WxLog");
-		};
-		validate(scanner, issueConsumer);
+		validate(scanner, null);
 	}
 
 	@Test
@@ -94,10 +94,27 @@ public class ScannerTest {
 		logger.setDebugEnabled(true);
 		logger.setTraceEnabled(true);
 		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new SonarWorkspaceScanner(() -> allFiles)).build();
-		final Consumer<List<MyIssue>> issueConsumer = (issues) -> {
-			assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev",  "The flow service jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev in package JwiScratch invokes the service wx.log.pub:logMessageFromCatalogDev, but neither of the following packages is declared as a dependency: WxLog");
-		};
-		validate(scanner, issueConsumer);
+		validate(scanner, null);
+	}
+
+	@Test
+	public void testHtmlGeneration() throws Exception {
+		final Path path = Paths.get("src/test/resources/packages");
+		assertTrue(Files.isDirectory(path));
+		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
+		logger.setDebugEnabled(true);
+		logger.setTraceEnabled(true);
+		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new DefaultWorkspaceScanner(path)).build();
+		final Path outputFile = Paths.get("target/unit-tests/htmlGeneration/output.json");
+		final Path outputDir = outputFile.getParent();
+		if (outputDir != null) {
+			Files.createDirectories(outputDir);
+		}
+		try (OutputStream os = Files.newOutputStream(outputFile);
+			 IssueJsonWriter ijw = new IssueJsonWriter(() -> os)) {
+			scanner.getWorkspace().addListener(ijw);
+			scanner.run();
+		}
 	}
 
 	private List<File> findFilesForSonarScanner(final Path path) {
@@ -140,7 +157,19 @@ public class ScannerTest {
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_INCLUDE_PIPELINE, "jwi.scratch.auditSettings.restServices:_post", "Invalid value for Audit/Include pipeline: Expected 1, got 2");
 		assertIssue(issues, Severity.ERROR, "JwiScratch", "AuditSettingsRule", ErrorCodes.AUDIT_SETTTING_LOG_ON, "jwi.scratch.auditSettings.ws.provider:wsServiceFail", "Invalid value for Audit/Log On: Expected 0, got 1");
 		assertIssue(issues, Severity.ERROR, "StartupServicePackage", "StartupServiceRule", ErrorCodes.STARTUP_SERVICE_UNKNOWN, "StartupServicePackage/manifest.v3", "Startup service com.foo.mypkg.admin:startup is not present in package StartupServicePackage");
-		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING, "jwi.scratch.messageCatalog:serviceOverridingSeverity",  "The flow service(s) jwi.scratch.messageCatalog:serviceOverridingSeverity, jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev, jwi.scratch.messageCatalog:serviceUsingUnknownLogMessage in package JwiScratch seem to be referencing either of the following packages , none of which is declared as a dependency: WxLog");
+		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING,
+				    "jwi.scratch.messageCatalog:serviceOverridingSeverity",
+				    "The flow service(s) jwi.scratch.messageCatalog:serviceOverridingSeverity,"
+				    + " jwi.scratch.messageCatalog:serviceUsingLogMessageFromCatalogDev,"
+				    + " jwi.scratch.messageCatalog:serviceUsingUnknownLogMessage in package"
+				    + " JwiScratch seem to be referencing either of the following packages,"
+				    + " none of which is declared as a dependency: WxLog");
+		assertIssue(issues, Severity.WARN, "JwiScratch", "DependencyCheckingRule", ErrorCodes.DEPENDENCY_MISSING,
+				    "jwi.scratch.missingDependencies:serviceUsingWxConfig",
+				    "The flow service(s) jwi.scratch.missingDependencies:serviceUsingWxConfig"
+				    + " in package JwiScratch seem to be referencing either of the following packages,"
+				    + " none of which is declared as a dependency: WxConfig");
+				    
 		if (pIssueConsumer != null) {
 			/* Some issues may vary, depending on the workspace scanner, because they depend on the order
 			 * of events, which in turn depends on the order of files, that are being scanned.
@@ -167,7 +196,15 @@ public class ScannerTest {
 				}
 			}
 		}
-		assertNull(unexpectedIssue);
+		if (unexpectedIssue != null) {
+			assertNull("Unexpected issue: package=" + unexpectedIssue.getPackage()
+			           + ", errorCode=" + unexpectedIssue.getErrorCode()
+			           + ", rule=" + unexpectedIssue.getRule()
+			           + ", severity=" + unexpectedIssue.getSeverity()
+			           + ", path=" + unexpectedIssue.getUri()
+			           + ", message=" + unexpectedIssue.getMessage(),
+			           unexpectedIssue);
+		}
 		assertEquals(20, issues.size());
 	}
 

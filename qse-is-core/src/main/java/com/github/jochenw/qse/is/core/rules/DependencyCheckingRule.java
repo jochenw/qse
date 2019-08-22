@@ -97,7 +97,7 @@ public class DependencyCheckingRule extends AbstractRule {
 					final ServiceListDescription sld = getServiceListDescription(serviceNames);
 					
 					final String msg = "The flow service(s) " + sld.getServiceNameListDescription() + " in package " + pPkg.getName()
-							+ " seem to be referencing either of the following packages , none of which is declared as a dependency: "
+							+ " seem to be referencing either of the following packages, none of which is declared as a dependency: "
 							+ packageNamesStr;
 					issue(pPkg, sld.getFirstService(), ErrorCodes.DEPENDENCY_MISSING,
 						  msg);
