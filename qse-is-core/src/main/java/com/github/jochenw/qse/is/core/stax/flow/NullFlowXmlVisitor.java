@@ -1,10 +1,15 @@
 
-package com.github.jochenw.qse.is.core.sax;
+package com.github.jochenw.qse.is.core.stax.flow;
+
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.MapActionListener;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.StepInfo;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.VisitorException;
 
 public class NullFlowXmlVisitor implements FlowXmlVisitor {
 	@Override
-	public void invocation(StepInfo pStepInfo, String pServiceName) {
+	public MapActionListener startInvoke(StepInfo pStepInfo, String pServiceName) {
 		// Does nothing.
+		return null;
 	}
 
 	@Override
@@ -18,8 +23,9 @@ public class NullFlowXmlVisitor implements FlowXmlVisitor {
 	}
 
 	@Override
-	public void startMap(StepInfo pStepInfo) {
+	public MapActionListener startMap(StepInfo pStepInfo) {
 		// Does nothing.
+		return null;
 	}
 
 	@Override
@@ -38,7 +44,7 @@ public class NullFlowXmlVisitor implements FlowXmlVisitor {
 	}
 
 	@Override
-	public void startFlow(String pVersion, boolean pCleanup) {
+	public void startFlow(StepInfo pStepInfo, String pVersion, boolean pCleanup) {
 		// Does nothing.
 	}
 
@@ -48,7 +54,7 @@ public class NullFlowXmlVisitor implements FlowXmlVisitor {
 	}
 
 	@Override
-	public void exit(StepInfo pStepInfo, String pFrom, String pSignal, String pFailureMessage) {
+	public void startExit(StepInfo pStepInfo, String pFrom, String pSignal, String pFailureMessage) {
 		// Does nothing.
 	}
 
@@ -59,6 +65,16 @@ public class NullFlowXmlVisitor implements FlowXmlVisitor {
 
 	@Override
 	public void endRepeat() {
+		// Does nothing.
+	}
+
+	@Override
+	public void endInvoke() throws VisitorException {
+		// Does nothing.
+	}
+
+	@Override
+	public void endExit() {
 		// Does nothing.
 	}
 }
