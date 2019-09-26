@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>QSE IS Report: ${project.name}</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"></link>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script>
+        alert("Script starting");
+        $(document).ready(function() {
+            $('#Issue').DataTable( {
+                ajax:           "../data/issues.json",
+                deferRender:    true,
+                scrollY:        200,
+                scrollCollapse: true,
+                scroller:       true
+            } );
+        } );
+        alert("Script done.");
+        </script>
+    </head>
+<body>
+  <h1>QSE IS Report: ${project.name}</h1>
+  <table id="IssueTable" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Error code</th>
+                <th>Rule</th>
+                <th>Severity</th>
+                <th>Node</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+    </table></body>
+</html>
