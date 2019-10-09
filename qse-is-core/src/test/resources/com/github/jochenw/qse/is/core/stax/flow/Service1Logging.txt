@@ -12,7 +12,7 @@ exit: label=$default, comment=, enabled=true, from=$flow, signal=FAILURE, failur
 exit: <-
 branch: <-
 repeat: -> label=null, comment=, enabled=true, count=whatever, retryInterval=2, loopOn=FAILURE
-invoke: -> label=null, comment=, enabled=false, service=pub.flow:debugLog
+invoke: -> label=null, comment=, enabled=false, service=jwi.scratch.flowParserExample:debugLog
 invoke: <-
 map: -> label=null, comment=, enabled=true
 map: <-
