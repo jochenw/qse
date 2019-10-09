@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.MapActionListener;
-import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.StepInfo;
-
 
 public class TreeBuildingFlowVisitor implements FlowXmlVisitor {
 	public abstract static class Step {
@@ -130,6 +127,7 @@ public class TreeBuildingFlowVisitor implements FlowXmlVisitor {
 	}
 	public static class Invoke extends Step {
 		private final String serviceName;
+		private final MapActionList actions = new MapActionList();
 		public Invoke(StepInfo pStepInfo, String pServiceName) {
 			super(pStepInfo);
 			serviceName = pServiceName;
@@ -137,10 +135,109 @@ public class TreeBuildingFlowVisitor implements FlowXmlVisitor {
 		public String getServiceName() {
 			return serviceName;
 		}
+		public MapActionList getActions() {
+			return actions;
+		}
+	}
+	public static class MapAction {
+		private final MapMode mapMode;
+		private final MapLocation mapLocation;
+		public MapAction(MapMode pMode, MapLocation pLocation) {
+			mapMode = pMode;
+			mapLocation = pLocation;
+		}
+		public MapMode getMapMode() {
+			return mapMode;
+		}
+		public MapLocation getMapLocation() {
+			return mapLocation;
+		}
+	}
+	public static class MapCopy extends MapAction {
+		private final String from, to;
+		public MapCopy(MapMode pMode, MapLocation pLocation, String pFrom, String pTo) {
+			super(pMode, pLocation);
+			from = pFrom;
+			to = pTo;
+		}
+		public String getFrom() {
+			return from;
+		}
+		public String getTo() {
+			return to;
+		}
+	}
+	public static class MapDrop extends MapAction {
+		private final String field;
+		public MapDrop(MapMode pMode, MapLocation pLocation, String pField) {
+			super(pMode, pLocation);
+			field = pField;
+		}
+		public String getField() {
+			return field;
+		}
+	}
+	public static class MapSetValue extends MapAction {
+		private final String field, value;
+		public MapSetValue(MapMode pMode, MapLocation pLocation, String pField, String pValue) {
+			super(pMode, pLocation);
+			field = pField;
+			value = pValue;
+		}
+		public String getField() {
+			return field;
+		}
+		public String getValue() {
+			return value;
+		}
+	}
+	public static class MapInvoke extends MapAction {
+		private final String service;
+		private final MapActionList actionList = new MapActionList();
+		public MapInvoke(MapMode pMode, MapLocation pLocation, String pService) {
+			super(pMode, pLocation);
+			service = pService;
+		}
+		public String getService() {
+			return service;
+		}
+	}
+	public static class MapActionList implements MapActionListener {
+		private final List<MapAction> actions = new ArrayList<>();
+
+		@Override
+		public void copy(MapMode pMode, MapLocation pLocation, String pFrom, String pTo) {
+			actions.add(new MapCopy(pMode, pLocation, pFrom, pTo));
+		}
+
+		@Override
+		public void setValue(MapMode pMode, MapLocation pLocation, String pField, String pValue) {
+			actions.add(new MapSetValue(pMode, pLocation, pField, pValue));
+		}
+
+		@Override
+		public void drop(MapMode pMode, MapLocation pLocation, String pField) {
+			actions.add(new MapDrop(pMode, pLocation, pField));
+		}
+
+		@Override
+		public MapActionListener invoke(MapMode pMode, MapLocation pLocation, String pService) {
+			final MapInvoke transformer = new MapInvoke(pMode, pLocation, pService);
+			actions.add(transformer);
+			return transformer.actionList;
+		}
+
+		public List<MapAction> getMapActions() {
+			return actions;
+		}
 	}
 	public static class Map extends Step {
+		private final MapActionList actions = new MapActionList();
 		public Map(StepInfo pStepInfo) {
 			super(pStepInfo);
+		}
+		public MapActionList getActions() {
+			return actions;
 		}
 	}
 
@@ -159,7 +256,7 @@ public class TreeBuildingFlowVisitor implements FlowXmlVisitor {
 	public MapActionListener startInvoke(StepInfo pStepInfo, String pServiceName) {
 		final Invoke invoke = new Invoke(pStepInfo, pServiceName);
 		add(invoke);
-		return null;
+		return invoke.getActions();
 	}
 
 	@Override
@@ -179,7 +276,9 @@ public class TreeBuildingFlowVisitor implements FlowXmlVisitor {
 
 	@Override
 	public MapActionListener startMap(StepInfo pStepInfo) {
-		return null;
+		final Map map = new Map(pStepInfo);
+		add(map);
+		return map.getActions();
 	}
 
 	@Override

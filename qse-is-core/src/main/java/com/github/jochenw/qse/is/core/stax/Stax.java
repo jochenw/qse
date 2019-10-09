@@ -1,41 +1,31 @@
 package com.github.jochenw.qse.is.core.stax;
 
 import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 public class Stax {
 	public static String asLocalizedMessage(Location pLoc, String pMsg) {
-		if (pLoc == null) {
-			return pMsg;
-		} else {
-			return asLocalizedMessage(pMsg, pLoc.getSystemId(), pLoc.getLineNumber(), pLoc.getColumnNumber());
-		}
+		return com.github.jochenw.afw.core.util.Stax.asLocalizedMessage(pLoc, pMsg);
 	}
 
 	public static String asLocalizedMessage(String pMsg, String pSystemId, int pLineNumber, int pColumnNumber) {
-		if (pSystemId == null  &&  pLineNumber == -1  &&  pColumnNumber == -1) {
-			return pMsg;
-		} else {
-			final StringBuilder sb = new StringBuilder();
-			String sep = "At ";
-			if (pSystemId != null) {
-				sb.append(sep);
-				sb.append(pSystemId);
-				sep = ", ";
-			}
-			if (pLineNumber != -1) {
-				sb.append(sep);
-				sb.append("line ");
-				sb.append(pLineNumber);
-				sep = ", ";
-			}
-			if (pColumnNumber != -1) {
-				sb.append(sep);
-				sb.append("column ");
-				sb.append(pColumnNumber);
-			}
-			sb.append(": ");
-			sb.append(pMsg);
-			return sb.toString();
+		return com.github.jochenw.afw.core.util.Stax.asLocalizedMessage(pMsg, pSystemId, pLineNumber, pColumnNumber);
+	}
+
+	public static String asString(XMLStreamReader pReader) {
+		return com.github.jochenw.afw.core.util.Stax.asString(pReader);
+	}
+
+	public static XMLStreamException error(XMLStreamReader pReader, String pMsg) {
+		final Location loc = pReader.getLocation();
+		return new XMLStreamException(asLocalizedMessage(loc, pMsg), loc);
+	}
+
+	public static void assertDefaultNamesace(XMLStreamReader pReader) throws XMLStreamException {
+		final String uri = pReader.getNamespaceURI();
+		if (uri != null  &&  uri.length() > 0) {
+			throw error(pReader, "Expected default namespace URI, got " + uri);
 		}
 	}
 }

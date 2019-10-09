@@ -9,14 +9,17 @@ public interface FlowXmlVisitor {
 		}
 	}
 
-	public enum MapLocation {
+	public static enum MapMode {
+		INPUT, OUTPUT, STANDALONE;
+	}
+	public static enum MapLocation  {
 		SOURCE, TARGET;
 	}
-	public enum MapTime {
-		IINVOCATION_INPUT, INVOCATION_OUTPUT, MAPSTEP
-	}
 	public interface MapActionListener {
-		
+		void copy(MapMode pMode, MapLocation pLocation, String pFrom, String pTo);
+		void drop(MapMode pMode, MapLocation pLocation, String pField);
+		MapActionListener invoke(MapMode pMode, MapLocation pLocation, String pService);
+		void setValue(MapMode pMode, MapLocation pLocation, String field, String value);
 	}
 	public interface StepInfo {
 		boolean isEnabled();

@@ -2,15 +2,19 @@ flow: -> label=null, comment=, enabled=true, version=3.0, cleanUp=true
 invoke: -> label=null, comment=, enabled=true, service=pub.math:addInts
 invoke: <-
 branch: -> label=null, comment=, enabled=true, switch=null, evaluateLabels=true
-map: -> label=%value% < 5, comment=, enabled=true
+map: -> label=%value% < 5, comment=Lower than five:, enabled=true
 map: <-
-map: -> label=%value% > 5, comment=, enabled=true
+map: -> label=%value% > 5, comment=Greater than five, enabled=true
 map: <-
-map: -> label=%value% == 5, comment=, enabled=true
+map: -> label=%value% == 5, comment=Equal to five, enabled=true
 map: <-
 exit: label=$default, comment=, enabled=true, from=$flow, signal=FAILURE, failureMessage=Impossible value: %value%
 exit: <-
 branch: <-
 repeat: -> label=null, comment=, enabled=true, count=whatever, retryInterval=2, loopOn=FAILURE
+invoke: -> label=null, comment=, enabled=false, service=pub.flow:debugLog
+invoke: <-
+map: -> label=null, comment=, enabled=true
+map: <-
 repeat: <-
 flow: <-
