@@ -163,4 +163,9 @@
       </build>
     </profile>
   </profiles>
+  <scm>
+  	<connection>scm:git:https://github.com/jochenw/qse</connection>
+  	<url>https://github.com/jochenw/qse</url>
+  	<developerConnection>scm:git:https://github.com/jochenw/qse</developerConnection>
+  </scm>
 </project>
