@@ -6,7 +6,7 @@
 
   <groupId>com.github.jochenw.qse</groupId>
   <artifactId>qse-is-core</artifactId>
-  <version>0.1</version>
+  <version>0.2</version>
 
   <name>qse-is-core</name>
   <url>https://github.com/jochenw/qse</url>
@@ -44,7 +44,7 @@
     <dependency>
     	<groupId>com.github.jochenw.afw</groupId>
     	<artifactId>afw-core</artifactId>
-    	<version>0.2</version>
+    	<version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
         <groupId>org.glassfish</groupId>

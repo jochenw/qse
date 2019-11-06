@@ -13,14 +13,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.junit.Test;
-import org.xml.sax.InputSource;
 
 import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor;
 import com.github.jochenw.qse.is.core.stax.flow.LoggingFlowXmlVisitor;
 import com.github.jochenw.qse.is.core.stax.flow.NullFlowXmlVisitor;
 import com.github.jochenw.qse.is.core.stax.flow.TreeBuildingFlowVisitor;
-import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.MapLocation;
 import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.MapMode;
 import com.github.jochenw.qse.is.core.stax.flow.TreeBuildingFlowVisitor.Branch;
 import com.github.jochenw.qse.is.core.stax.flow.TreeBuildingFlowVisitor.Exit;
@@ -49,7 +49,7 @@ public class FlowXmlPullParserTest {
 	@Test
 	public void testLoggingVisitor() throws Exception {
 		final List<String> lines = new ArrayList<>();
-		final LoggingFlowXmlVisitor visitor = new LoggingFlowXmlVisitor((s) -> { lines.add(s); });
+		final LoggingFlowXmlVisitor visitor = new LoggingFlowXmlVisitor((s) -> { System.out.println(s); lines.add(s); });
 		parseService1(visitor);
 
 		final URL url = getClass().getResource("Service1Logging.txt");
@@ -165,14 +165,14 @@ public class FlowXmlPullParserTest {
 		assertTrue(transformingMapStep.isEnabled());
 	}
 
-	private void parseService1(final FlowXmlVisitor visitor) throws IOException {
+	private void parseService1(final FlowXmlVisitor visitor) throws XMLStreamException {
 		final String uri = "packages/JwiScratch/ns/jwi/scratch/flowParserExample/service1/flow.xml";
 		final URL url = Thread.currentThread().getContextClassLoader().getResource(uri);
 		assertNotNull(url);
 		try (InputStream in = url.openStream()) {
-			final InputSource isource = new InputSource(in);
-			isource.setSystemId(url.toExternalForm());
-			FlowXmlParser.parse(isource, visitor);
+			FlowXmlStaxParser.parse(in, url.toExternalForm(), visitor);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
 }
