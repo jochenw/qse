@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Function;
 
-import com.github.jochenw.afw.cli.Options;
-import com.github.jochenw.afw.cli.Options.Result;
+import com.github.jochenw.afw.core.cli.Options;
+import com.github.jochenw.afw.core.cli.Options.Result;
 import com.github.jochenw.qse.is.core.api.FileLogger;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
