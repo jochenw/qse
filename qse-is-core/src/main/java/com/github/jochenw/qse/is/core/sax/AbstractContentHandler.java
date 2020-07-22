@@ -109,7 +109,7 @@ public abstract class AbstractContentHandler implements FinalizableContentHandle
 	}
 	
 	@Override
-	public void endElement(@Nonnull String pUri, @Nonnull String pLocalName, @Nonnull String pQName) throws SAXException {
+	public void endElement(String pUri, String pLocalName, String pQName) throws SAXException {
 		--level;
 		if (collectingText) {
 			if (level == collectLevel) {
@@ -121,14 +121,14 @@ public abstract class AbstractContentHandler implements FinalizableContentHandle
 	}
 
 	@Override
-	public void characters(@Nonnull char[] pChars, int pStart, int pLength) throws SAXException {
+	public void characters(char[] pChars, int pStart, int pLength) throws SAXException {
 		if (collectingText) {
 			sb.append(pChars, pStart, pLength);
 		}
 	}
 
 	@Override
-	public void ignorableWhitespace(@Nonnull char[] pChars, int pStart, int pLength) throws SAXException {
+	public void ignorableWhitespace(char[] pChars, int pStart, int pLength) throws SAXException {
 		if (collectingText) {
 			sb.append(pChars, pStart, pLength);
 		}

@@ -9,3 +9,4 @@ qse-is-sonar-plugin/\.classpath
 qse-is-sonar-plugin/\.project
 
 qse-is-sonar-plugin/\.settings/
+/bin/
