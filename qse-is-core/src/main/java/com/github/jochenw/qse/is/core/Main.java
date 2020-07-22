@@ -4,48 +4,74 @@ import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Function;
 
-import com.github.jochenw.afw.core.cli.Options;
-import com.github.jochenw.afw.core.cli.Options.Result;
+import com.github.jochenw.afw.core.cli.Args;
+import com.github.jochenw.afw.core.cli.Args.Context;
 import com.github.jochenw.qse.is.core.api.FileLogger;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
 
 public class Main {
-	public static void main(String[] pArgs) throws Exception {
-		final Options options = new Options()
-				.pathOption().names("scanDir").description("Sets the scan directory (Default: Current Directory)").end()
-				.pathOption().names("outFile").description("Sets the output file (Default: STDOUT)").end()
-				.pathOption().names("logFile").description("Sets the log file (Default: STDERR").end()
-				.pathOption().names("rulesFile").description("Sets the rules file (Required)").required().end()
-				.intOption(-1).names("maxNumberOfErrors").description("Sets the maximum number of errors (Default -1=unlimited).").end()
-				.intOption(-1).names("maxNumberOfWarnings").description("Sets the maximum number of warnings (Default -1=unlimited).").end()
-				.intOption(-1).names("maxNumberOfOtherIssues").description("Sets the maximum number of other issues (Default -1=unlimited).").end()
-				.booleanOption(false).names("h", "?", "help").description("Prints this help message, and exits with error status.").end();
-		final Function<String,RuntimeException> errorHandler = (s) -> {
-			Usage(s);
-			System.exit(1);
-			return null;
+	public static class OptionsBean {
+		Path rulesFile, logFile, outFile, scanDir;
+		int maxNumberOfErrors, maxNumberOfWarnings, maxNumberOfOtherIssues;
+	}
+
+	public static OptionsBean parse(String[] pArgs) {
+		final OptionsBean options = new OptionsBean();
+		final Args.Listener listener = new Args.Listener() {
+			@Override
+			public void option(Context pCtx, String pName) {
+				switch (pName) {
+				case "scanDir":
+					options.scanDir = pCtx.getSinglePathValue((p) -> Files.isDirectory(p),
+							"Invalid argument for option " + pName + ": " + options.scanDir
+						    + " (Doesn't exist, or is not a directory)");
+					break;
+				case "outFile":
+					options.outFile = pCtx.getSinglePathValue();
+					break;
+				case "logFile":
+					options.logFile = pCtx.getSinglePathValue();
+					break;
+				case "rulesFile":
+					options.rulesFile = pCtx.getSinglePathValue();
+					break;
+				case "maxNumberOfErrors":
+					options.maxNumberOfErrors = pCtx.getSingleIntValue((i) -> i >= 0, "Invalid argument for option "
+						+ pName + ": Integer value must be >= 0");
+					break;
+				case "maxNumberOfWarnings":
+					options.maxNumberOfWarnings = pCtx.getSingleIntValue((i) -> i >= 0, "Invalid argument for option "
+							+ pName + ": Integer value must be >= 0");
+					break;
+				case "maxNumberOfOtherIssues":
+					options.maxNumberOfOtherIssues = pCtx.getSingleIntValue((i) -> i >= 0, "Invalid argument for option "
+							+ pName + ": Integer value must be >= 0");
+					break;
+				}
+			}
 		};
-		final Result optionsResult = options.process(pArgs, errorHandler);
-		if (optionsResult.getBoolValue("h")) {
-			throw errorHandler.apply(null);
-		}
-		final Path rulesFile = optionsResult.getValue("rulesFile");
-		final Path logFile = optionsResult.getValue("logFile");
-		final Path outFile = optionsResult.getValue("outFile");
-		Path scanDir = optionsResult.getValue("scanDir");
-		final int maxNumberOfErrors = optionsResult.getIntValue("maxNumberOfErrors");
-		final int maxNumberOfWarnings = optionsResult.getIntValue("maxNumberOfWarnings");
-		final int maxNumberOfOtherIssues = optionsResult.getIntValue("maxNumberOfOtherIssues");
+		Args.parse(listener, pArgs);
+		return options;
+	}
+
+	public static void main(String[] pArgs) throws Exception {
+		final OptionsBean options = parse(pArgs);
+		final Path rulesFile = options.rulesFile;
+		final Path logFile = options.logFile;
+		final Path outFile = options.outFile;
+		Path scanDir = options.scanDir;
+		final int maxNumberOfErrors = options.maxNumberOfErrors;
+		final int maxNumberOfWarnings = options.maxNumberOfWarnings;
+		final int maxNumberOfOtherIssues = options.maxNumberOfOtherIssues;
 		if (scanDir == null) {
 			scanDir = FileSystems.getDefault().getPath(".");
 		} else if (!Files.isDirectory(scanDir)) {
-			throw errorHandler.apply("Scan directory (as given by option 'scanDir') does not exist: " + scanDir);
+			throw Usage("Scan directory (as given by option 'scanDir') does not exist: " + scanDir);
 		}
 		if (!Files.isRegularFile(rulesFile)) {
-			throw errorHandler.apply("Rules file (as given by option 'rulesFile') does not exist, or is not a file: " + rulesFile);
+			throw Usage("Rules file (as given by option 'rulesFile') does not exist, or is not a file: " + rulesFile);
 		}
 		try (final Logger logger = getLogger(logFile)) {
 			final Scanner.Result scannerResult = scan(scanDir, outFile, rulesFile, logger);
@@ -85,7 +111,7 @@ public class Main {
 		}
 	}
 	
-	public static final void Usage(String pMsg) {
+	public static final RuntimeException Usage(String pMsg) {
 		final PrintStream ps = System.err;
 		if (pMsg != null) {
 			ps.println(pMsg);
@@ -100,5 +126,7 @@ public class Main {
 		ps.println("  -logFile <FILE>    Sets the log file (Default: STDERR)");
 		ps.println("  -outFile <FILE>    Sets the output file (Default: STDOUT)");
 		ps.println("  -h|-help           Prints this help message, and exits with error status");
+		System.exit(1);
+		return new RuntimeException(pMsg);
 	}
 }
