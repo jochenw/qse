@@ -11,15 +11,11 @@ design is also, what would be required within SonarQube.
 
 As of this writing, the following analyzers (so-called rules) are available:
 
-    - AuditSettingsRule - Validates trigger configurations for possible pain points, like number of parallel threads, etc.
-    - DependencyCheckingRule - Validates, whether service references are only local, or within a limited range of permitted "tool packages".
-    - ForbiddenServicesRule - Validates, whether some services are used, that are known to be possible source of trouble. (Might as well
-                              call this the "DeprecatedServicesRule".)
-    - LogMessageCatalogRule - Verifies, whether the message catalog is properly used. (A log message *must* be registered in the message
-                              catalog, so that it can be properly localized.
-    - PipelineDebugRule - Verifies service configurations for possible pain points, like debugging modes, etc., that should onyl be
-                          present in a development environment.
-    - StartupServiceRule - Validates the configuration of startup/shutdown services: Those must be located locally, and (obviously) should
-                           exist at all.
+- AuditSettingsRule - Validates trigger configurations for possible pain points, like number of parallel threads, etc.
+- DependencyCheckingRule - Validates, whether service references are only local, or within a limited range of permitted "tool packages".
+- ForbiddenServicesRule - Validates, whether some services are used, that are known to be possible source of trouble. (Might as well call this the "DeprecatedServicesRule".)
+- LogMessageCatalogRule - Verifies, whether the message catalog is properly used. (A log message *must* be registered in the message catalog, so that it can be properly localized.
+- PipelineDebugRule - Verifies service configurations for possible pain points, like debugging modes, etc., that should onyl be present in a development environment.
+- StartupServiceRule - Validates the configuration of startup/shutdown services: Those must be located locally, and (obviously) should exist at all.
  
  
