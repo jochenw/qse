@@ -121,7 +121,7 @@ public class Scanner {
 
 	public static Result scan(Path pScanDir, Path pOutputFile, Path pRulesFile, Logger pLogger) {
 		if (pOutputFile == null) {
-			return scan(pScanDir, System.out, false, true, pRulesFile, pLogger);
+			return scan(pScanDir, System.out, true, true, pRulesFile, pLogger);
 		} else {
 			try (OutputStream os = Files.newOutputStream(pOutputFile)) {
 				return scan(pScanDir, os, true, false, pRulesFile, pLogger);

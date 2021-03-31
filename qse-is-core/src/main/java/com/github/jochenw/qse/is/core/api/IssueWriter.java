@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
@@ -17,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import com.github.jochenw.afw.core.util.Exceptions;
 import com.github.jochenw.qse.is.core.Scanner;
 
 public class IssueWriter implements AutoCloseable, IssueConsumer {
@@ -48,6 +48,7 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 	private final OutputStream out;
 	private final boolean prettyPrint;
 	private boolean closeable;
+	private boolean closed;
 	private TransformerHandler th;
 	private int numberOfOtherIssues;
 	private int numberOfWarnings;
@@ -63,20 +64,7 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 	public void accept(@Nonnull Issue pIssue) {
 		try {
 			if (th == null) {
-				SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance();
-				TransformerHandler trh = stf.newTransformerHandler();
-				final Transformer t = trh.getTransformer();
-				t.setOutputProperty(OutputKeys.ENCODING, "UTF8");
-				t.setOutputProperty(OutputKeys.STANDALONE, "yes");
-				if (prettyPrint) {
-					t.setOutputProperty(OutputKeys.INDENT, "yes");
-				} else {
-					t.setOutputProperty(OutputKeys.INDENT, "no");
-				}
-				trh.setResult(new StreamResult(out));
-				trh.startDocument();
-				trh.startElement(XMLConstants.NULL_NS_URI, "issues", "issues", NO_ATTRS);
-				th = trh;
+				open();
 			}
 			final AttributesImpl attrs = new AttributesImpl();
 			attrs.addAttribute(XMLConstants.NULL_NS_URI, "package", "package", "CDATA", pIssue.getPackage());
@@ -90,8 +78,6 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 			th.characters(messageChars, 0, messageChars.length);
 			th.endElement(XMLConstants.NULL_NS_URI, "message", "message");
 			th.endElement(XMLConstants.NULL_NS_URI, "issue", "issue");
-		} catch (TransformerException te) {
-			throw new UndeclaredThrowableException(te);
 		} catch (SAXException se) {
 			throw new UndeclaredThrowableException(se);
 		}
@@ -108,16 +94,41 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 		}
 	}
 
+	protected void open() {
+		try {
+			SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance();
+			TransformerHandler trh = stf.newTransformerHandler();
+			final Transformer t = trh.getTransformer();
+			t.setOutputProperty(OutputKeys.ENCODING, "UTF8");
+			t.setOutputProperty(OutputKeys.STANDALONE, "yes");
+			if (prettyPrint) {
+				t.setOutputProperty(OutputKeys.INDENT, "yes");
+			} else {
+				t.setOutputProperty(OutputKeys.INDENT, "no");
+			}
+			trh.setResult(new StreamResult(out));
+			trh.startDocument();
+			trh.startElement(XMLConstants.NULL_NS_URI, "issues", "issues", NO_ATTRS);
+			th = trh;
+		} catch (Throwable t) {
+			throw Exceptions.show(t);
+		}
+	}
+
 	@Override
 	public void close() throws IOException {
-		if (th != null) {
+		if (!closed) {
+			closed = true;
+			if (th == null) {
+				open();
+			}
 			final TransformerHandler trh = th;
 			th = null;
 			try {
 				final AttributesImpl attrs = new AttributesImpl();
 				attrs.addAttribute(XMLConstants.NULL_NS_URI, "errors", "errors", "CDATA", String.valueOf(numberOfErrors));
-				attrs.addAttribute(XMLConstants.NULL_NS_URI, "warnings", "errors", "CDATA", String.valueOf(numberOfWarnings));
-				attrs.addAttribute(XMLConstants.NULL_NS_URI, "otherIssues", "errors", "CDATA", String.valueOf(numberOfOtherIssues));
+				attrs.addAttribute(XMLConstants.NULL_NS_URI, "warnings", "warnings", "CDATA", String.valueOf(numberOfWarnings));
+				attrs.addAttribute(XMLConstants.NULL_NS_URI, "otherIssues", "otherIssues", "CDATA", String.valueOf(numberOfOtherIssues));
 				trh.startElement(XMLConstants.NULL_NS_URI, "count", "count", attrs);
 				trh.endElement(XMLConstants.NULL_NS_URI, "count", "count");
 				trh.endElement(XMLConstants.NULL_NS_URI, "issues", "issues");
@@ -125,10 +136,10 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 			} catch (SAXException se) {
 				throw new UndeclaredThrowableException(se);
 			}
-		}
-		if (closeable) {
-			closeable = false;
-			out.close();
+			if (closeable) {
+				closeable = false;
+				out.close();
+			}
 		}
 	}
 

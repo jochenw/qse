@@ -44,7 +44,7 @@
     <dependency>
     	<groupId>com.github.jochenw.afw</groupId>
     	<artifactId>afw-core</artifactId>
-    	<version>0.5-SNAPSHOT</version>
+    	<version>0.5.1</version>
     </dependency>
     <dependency>
         <groupId>org.glassfish</groupId>

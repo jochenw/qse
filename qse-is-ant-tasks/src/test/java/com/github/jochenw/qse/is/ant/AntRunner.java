@@ -126,7 +126,6 @@ public class AntRunner implements AntMain {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void processArgs(String[] args) {
 		String searchForThis = null;
 		boolean searchForFile = false;
@@ -246,7 +245,7 @@ public class AntRunner implements AntMain {
 		if (!justPrintUsage && !justPrintVersion && !justPrintDiagnostics) {
 			if (this.buildFile == null) {
 				ProjectHelper helper;
-				Iterator<Object> it;
+				Iterator<ProjectHelper> it;
 				if (searchForFile) {
 					if (searchForThis != null) {
 						this.buildFile = this.findBuildFile(System.getProperty("user.dir"), searchForThis);
@@ -254,7 +253,7 @@ public class AntRunner implements AntMain {
 							throw new BuildException("Could not locate a build file!");
 						}
 					} else {
-						final Iterator<Object> i = (Iterator<Object>) ProjectHelperRepository.getInstance().getHelpers(); 
+						final Iterator<ProjectHelper> i = ProjectHelperRepository.getInstance().getHelpers(); 
 						it = i;
 
 						do {
@@ -409,7 +408,7 @@ public class AntRunner implements AntMain {
 			throw new BuildException("Unrecognized niceness value: " + args[pos]);
 		}
 
-		if (this.threadPriority >= 1 && this.threadPriority <= 10) {
+		if (this.threadPriority.intValue() >= 1 && this.threadPriority.intValue() <= 10) {
 			return pos;
 		} else {
 			throw new BuildException("Niceness value is out of the range 1-10");
@@ -500,7 +499,7 @@ public class AntRunner implements AntMain {
 					if (this.threadPriority != null) {
 						try {
 							project.log("Setting Ant's thread priority to " + this.threadPriority, 3);
-							Thread.currentThread().setPriority(this.threadPriority);
+							Thread.currentThread().setPriority(this.threadPriority.intValue());
 						} catch (SecurityException var33) {
 							project.log("A security manager refused to set the -nice value");
 						}
@@ -508,7 +507,8 @@ public class AntRunner implements AntMain {
 
 					project.init();
 					PropertyHelper propertyHelper = PropertyHelper.getPropertyHelper(project);
-					HashMap<Object,Object> props = new HashMap<>(this.definedProps);
+					HashMap<String,Object> props = new HashMap<>();
+					this.definedProps.forEach((k,v) -> props.put(k.toString(), v));
 					(new ResolvePropertyMap(project, propertyHelper, propertyHelper.getExpanders()))
 							.resolveAllProperties(props, (String) null, false);
 					Iterator<?> e = props.entrySet().iterator();

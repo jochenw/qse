@@ -53,6 +53,9 @@ public class Main {
 			}
 		};
 		Args.parse(listener, pArgs);
+		if (options.rulesFile == null) {
+			throw Usage("Option -rulesFile is not given.");
+		}
 		return options;
 	}
 

@@ -31,7 +31,7 @@ public class RulesParserTest {
 	}
 
 	private void assertRule(Rule pRule, boolean pEnabled, Class<?> pClass, Severity pSeverity, Object... pProperties) {
-		assertEquals(pEnabled, pRule.isEnabled());
+		assertEquals(Boolean.valueOf(pEnabled), Boolean.valueOf(pRule.isEnabled()));
 		assertEquals(pClass.getName(), pRule.getClassName());
 		assertEquals(pSeverity, pRule.getSeverity());
 		final Map<String, Object> properties = pRule.getProperties();
