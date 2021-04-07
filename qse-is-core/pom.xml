@@ -6,7 +6,7 @@
 
   <groupId>com.github.jochenw.qse</groupId>
   <artifactId>qse-is-core</artifactId>
-  <version>0.2</version>
+  <version>0.2.1-SNAPSHOT</version>
 
   <name>qse-is-core</name>
   <url>https://github.com/jochenw/qse</url>
@@ -44,7 +44,7 @@
     <dependency>
     	<groupId>com.github.jochenw.afw</groupId>
     	<artifactId>afw-core</artifactId>
-    	<version>0.5.1</version>
+    	<version>0.5.2</version>
     </dependency>
     <dependency>
         <groupId>org.glassfish</groupId>
@@ -184,6 +184,80 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+        <profile>
+      <id>oss-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.1.1</version>
+            <configuration>
+              <show>protected</show>
+              <nohelp>true</nohelp>
+              <failOnError>false</failOnError>
+              <failOnWarnings>false</failOnWarnings>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadoc</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+              <groupId>org.sonatype.plugins</groupId>
+              <artifactId>nexus-staging-maven-plugin</artifactId>
+              <version>1.6.7</version>
+              <extensions>true</extensions>
+              <configuration>
+                  <serverId>ossrh</serverId>
+                  <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                  <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              </configuration>
+           </plugin>
+        </plugins>
+      </build>
+      <distributionManagement>
+          <repository>
+              <id>ossrh</id>
+              <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          </repository>
+          <snapshotRepository>
+              <id>ossrh</id>
+              <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          </snapshotRepository>
+      </distributionManagement>
     </profile>
   </profiles>
   <scm>

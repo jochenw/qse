@@ -96,7 +96,7 @@ public class ScannerTest {
 		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new SonarWorkspaceScanner(() -> allFiles)).build();
 		validate(scanner, null);
 	}
-
+	
 	@Test
 	public void testHtmlGeneration() throws Exception {
 		final Path path = Paths.get("src/test/resources/packages");
@@ -106,6 +106,32 @@ public class ScannerTest {
 		logger.setTraceEnabled(true);
 		final Scanner scanner = new ScannerBuilder(null).logger(logger).workspaceScanner(new DefaultWorkspaceScanner(path)).build();
 		final Path outputFile = Paths.get("target/unit-tests/htmlGeneration/output.json");
+		final Path outputDir = outputFile.getParent();
+		if (outputDir != null) {
+			Files.createDirectories(outputDir);
+		}
+		try (OutputStream os = Files.newOutputStream(outputFile);
+			 IssueJsonWriter ijw = new IssueJsonWriter(() -> os)) {
+			scanner.getWorkspace().addListener(ijw);
+			scanner.run();
+		}
+	}
+
+	@Test
+	public void testTemplateFile() throws Exception {
+		final Path path = Paths.get("src/test/resources/packages");
+		assertTrue(Files.isDirectory(path));
+		final PrintStreamLogger logger = new PrintStreamLogger(System.err);
+		logger.setDebugEnabled(true);
+		logger.setTraceEnabled(true);
+		final Path outputFile = Paths.get("target/unit-tests/templates/output.html");
+		final Scanner scanner = new ScannerBuilder(null)
+				                .logger(logger)
+				                .outputFile(outputFile)
+				                .templateFile("default:result-table.html")
+				                .templateTitle("Test scan result")
+				                .workspaceScanner(new DefaultWorkspaceScanner(path))
+				                .build();
 		final Path outputDir = outputFile.getParent();
 		if (outputDir != null) {
 			Files.createDirectories(outputDir);
@@ -243,5 +269,6 @@ public class ScannerTest {
 	@Test
 	public void testNullWorkspaceScanner() {
 		final Scanner scanner = new ScannerBuilder(null).logger(Logger.getNullLogger()).workspaceScanner(new NullWorkspaceScanner()).build();
+		assertNotNull(scanner);
 	}
 }

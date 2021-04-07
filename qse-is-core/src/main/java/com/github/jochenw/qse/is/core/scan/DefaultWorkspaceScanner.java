@@ -43,7 +43,7 @@ public class DefaultWorkspaceScanner implements IWorkspaceScanner {
 	}
 
 	private FileVisitor<Path> newVisitor(ContextImpl pContext, List<PackageFileConsumer> pPackageFileConsumers) {
-		final List<IsPackageListener> packageListeners = pluginRegistry.requirePlugins(IsPackageListener.class);
+		final List<IsPackageListener> packageListeners = pluginRegistry.requireExtensionPoint(IsPackageListener.class).getPlugins();
 		return new SimpleFileVisitor<Path>() {
 			final StringBuilder fullPath = new StringBuilder();
 			final StringBuilder localPath = new StringBuilder();

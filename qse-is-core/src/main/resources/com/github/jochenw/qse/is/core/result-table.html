@@ -1,0 +1,51 @@
+<html>
+  <head><title>${title}</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css"></link>
+    <script type="text/javascript">
+      $(document).ready(function() {
+          $('#example').DataTable({
+        	  data: [
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+        	  ] 
+          });
+      } );
+    </script>
+  <body>
+    <h1>${title}</h1>
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>File</th>
+                <th>Rule</th>
+                <th>Id</th>
+                <th>Severity</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Package</th>
+                <th>File</th>
+                <th>Rule</th>
+                <th>Id</th>
+                <th>Severity</th>
+                <th>Message</th>
+            </tr>
+        </tfoot>
+      </table>
+  </body>
+</html>

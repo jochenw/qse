@@ -77,7 +77,7 @@ public class Scanner {
 	public void run() {
 		makeImmutable();
 		IWorkspaceScanner workspaceScanner = getComponentFactory().requireInstance(IWorkspaceScanner.class);
-		workspaceScanner.scan(this, pluginRegistry.requirePlugins(PackageFileConsumer.class));
+		workspaceScanner.scan(this, pluginRegistry.requireExtensionPoint(PackageFileConsumer.class).getPlugins());
 		pluginRegistry.forEach(Finalizer.class, (f) -> f.run());
 	}
 
