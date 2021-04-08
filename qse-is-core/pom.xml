@@ -179,6 +179,9 @@
                 </goals>
                 <phase>verify</phase>
               </execution>
+              <configuration>
+                <keyname>${gpg.key.id}</keyname>
+              </configuration>
             </executions>
           </plugin>
         </plugins>
