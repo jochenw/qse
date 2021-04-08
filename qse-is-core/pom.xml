@@ -179,7 +179,7 @@
                 </goals>
                 <phase>verify</phase>
                 <configuration>
-                  <keyname>${gpg.key.id}</keyname>
+                  <keyname>jochen.wiedmann@gmail.com</keyname>
                 </configuration>
               </execution>
             </executions>
