@@ -8,6 +8,7 @@
   <version>0.2.1-SNAPSHOT</version>
 
   <name>qse-is-core</name>
+  <description>QSE IS (Core module)</description>
   <url>https://github.com/jochenw/qse</url>
   <licenses>
     <license>
@@ -16,6 +17,14 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <developers>
+    <developer>
+      <id>jwi</id>
+      <email>jochen.wiedmann@gmail.com</email>
+      <name>Jochen Wiedmann</name>
+      <organizationUrl>https://github.com/jochenw</organizationUrl>
+    </developer>
+  </developers>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
