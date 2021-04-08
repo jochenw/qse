@@ -178,10 +178,10 @@
                   <goal>sign</goal>
                 </goals>
                 <phase>verify</phase>
+                <configuration>
+                  <keyname>${gpg.key.id}</keyname>
+                </configuration>
               </execution>
-              <configuration>
-                <keyname>${gpg.key.id}</keyname>
-              </configuration>
             </executions>
           </plugin>
         </plugins>
