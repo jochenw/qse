@@ -75,6 +75,10 @@ public class SonarWorkspaceScanner implements IWorkspaceScanner {
 	/**
 	 * Returns the set of package roots in the given file list. A package root is defined as
 	 * a directory, which contains a "manifest.v3" file.
+	 * @param pAllFiles List of all files, that are subject to the sonar scan. This includes
+	 *   the "manifest.v3" files, that are indicators of a package root.
+	 * @return A map of package roots. The map keys are the package names, and the values are
+	 * the resource representation of the respective "manifest.v3" files.
 	 */
 	protected Map<String,SonarResource> getPackages(List<File> pAllFiles) {
 		final Map<String,SonarResource> packages = new HashMap<>();

@@ -30,11 +30,18 @@ public interface FlowXmlVisitor {
 	void endExit();
 	/** Called for an INVOKE, or MAPINVOKE step. If a listener is being returned, it will be
 	 * called with pMapTime=INVOCATION_INPUT|INVOCATION_OUTPUT, and pMapLocation=SOURCE|TARGET.
+	 * @param pStepInfo The current step info.
+	 * @param pServiceName Name of the service, that is being invoked.
+	 * @return A listener, that is being notified about the invocations mapping details. Null, if the
+	 *   details are not required.
 	 */
 	MapActionListener startInvoke(StepInfo pStepInfo, String pServiceName) throws VisitorException;
 	void startBranch(StepInfo pStepInfo, String pSwitch, boolean pEvaluateLabels) throws VisitorException;
 	void endBranch() throws VisitorException;
-	/** Called for an MAP step. If a listener is being returned, it will be called with pMapTime=MAPSTEP, and pMapLocation=SOURCE|TARGET.
+	/** Called for a MAP step. If a listener is being returned, it will be called with pMapTime=MAPSTEP, and pMapLocation=SOURCE|TARGET.
+	 * @param pStepInfo The current step info.
+	 * @return A listener, that is being notified about the mapping details. Null, if the
+	 *   details are not required.
 	 */
 	MapActionListener startMap(StepInfo pStepInfo) throws VisitorException;
 	void endMap() throws VisitorException;

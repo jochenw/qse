@@ -16,7 +16,7 @@ public class Resources {
 	 * {@code pUri}. More precisely:
 	 * <ol>
 	 *   <li>If the {@code pUri} has the format "resource:suburi", then the Uri is resolved
-	 *     by invoking {@link ClassLoader#resolve(String)} on the String "suburi".</li>
+	 *     by invoking {@link ClassLoader#getResource(String)} on the String "suburi".</li>
 	 *   <li>If the {@code pUri} has the format "default:suburi", then the Uri is resolved
 	 *     by invoking {@link ClassLoader#getResource(String)} on the current threads
 	 *     context class loader, passing the string {@code pDefaultUri} + "/suburi". If

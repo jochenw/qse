@@ -131,7 +131,6 @@ public class Main {
 				    try (Writer w = Files.newBufferedWriter(outFile, StandardCharsets.UTF_8)) {
 				    	template.write(model, w);
 				    }
-				    template.write(model, null);
 				}, StandardCharsets.UTF_8);
 			}
 			if (maxNumberOfErrors != -1  &&  maxNumberOfErrors > scannerResult.getNumberOfErrors()) {
