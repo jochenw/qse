@@ -30,7 +30,7 @@
   	<dependency>
   		<groupId>com.github.jochenw.afw</groupId>
   		<artifactId>afw-core</artifactId>
-  		<version>1.0</version>
+  		<version>0.5.2</version>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
@@ -49,4 +49,34 @@
         	<version>3.0.2</version>
         </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>jacoco</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.4</version>
+            <executions>
+              <execution>
+                <id>jacoco:prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <phase>initialize</phase>
+              </execution>
+              <execution>
+                <id>jacoco:report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
