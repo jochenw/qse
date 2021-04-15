@@ -7,27 +7,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
 import com.github.jochenw.afw.core.inject.IComponentFactory;
-import com.github.jochenw.afw.core.inject.simple.SimpleComponentFactoryBuilder;
-import com.github.jochenw.afw.core.plugins.DefaultPluginRegistry;
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
 import com.github.jochenw.afw.core.util.Exceptions;
-import com.github.jochenw.afw.core.util.Objects;
 import com.github.jochenw.qse.is.core.api.Finalizer;
+import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueWriter;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.Rule;
 import com.github.jochenw.qse.is.core.model.IsWorkspace;
 import com.github.jochenw.qse.is.core.rules.AbstractRule;
-import com.github.jochenw.qse.is.core.rules.PackageScannerRule;
 import com.github.jochenw.qse.is.core.rules.RulesParser;
-import com.github.jochenw.qse.is.core.sax.Sax;
 import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
 import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
@@ -38,6 +32,7 @@ public class Scanner {
 		public int getNumberOfErrors();
 		public int getNumberOfWarnings();
 		public int getNumberOfOtherIssues();
+		public List<Issue> getIssues();
 	}
 
 	@Inject IComponentFactory componentFactory;
@@ -104,7 +99,7 @@ public class Scanner {
 			}
 			final Rule rule;
 			try {
-				rule = (Rule) clazz.newInstance();
+				rule = (Rule) clazz.getDeclaredConstructor().newInstance();
 			} catch (Throwable t) {
 				throw new UndeclaredThrowableException(t, "Unable to instantiate rule class "
 			        + className + ": " + t.getMessage());
@@ -143,7 +138,7 @@ public class Scanner {
 			scanDir = pScanDir;
 		}
 		try (IssueWriter writer = new IssueWriter(pOut, pCloseOut, pPrettyPrint)) {
-			final DefaultWorkspaceScanner workspaceScanner = new DefaultWorkspaceScanner(pScanDir);
+			final DefaultWorkspaceScanner workspaceScanner = new DefaultWorkspaceScanner(scanDir);
 			final Scanner scanner = newInstance(workspaceScanner, pLogger, pRulesFile);
 			scanner.getWorkspace().addListener(writer);
 			scanner.run();

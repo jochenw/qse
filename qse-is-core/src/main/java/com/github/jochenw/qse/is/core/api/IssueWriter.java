@@ -3,6 +3,8 @@ package com.github.jochenw.qse.is.core.api;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
@@ -22,11 +24,13 @@ import com.github.jochenw.qse.is.core.Scanner;
 public class IssueWriter implements AutoCloseable, IssueConsumer {
 	public static class Result implements Scanner.Result {
 		private final int numberOfOtherIssues, numberOfWarnings, numberOfErrors;
+		private final List<Issue> issues;
 
-		public Result(int pNumberOfOtherIssues, int pNumberOfWarnings, int pNumberOfErrors) {
+		public Result(int pNumberOfOtherIssues, int pNumberOfWarnings, int pNumberOfErrors, List<Issue> pList) {
 			numberOfOtherIssues = pNumberOfOtherIssues;
 			numberOfWarnings = pNumberOfWarnings;
 			numberOfErrors = pNumberOfErrors;
+			issues = pList;
 		}
 
 		@Override
@@ -43,6 +47,11 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 		public int getNumberOfWarnings() {
 			return numberOfWarnings;
 		}
+
+		@Override
+		public List<Issue> getIssues() {
+			return issues;
+		}
 	}
 	private static final AttributesImpl NO_ATTRS = new AttributesImpl();
 	private final OutputStream out;
@@ -53,6 +62,7 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 	private int numberOfOtherIssues;
 	private int numberOfWarnings;
 	private int numberOfErrors;
+	private final List<Issue> issues = new ArrayList<>();
 
 	public IssueWriter(@Nonnull OutputStream pOut, boolean pCloseable, boolean pPrettyPrint) {
 		out = pOut;
@@ -81,6 +91,7 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 		} catch (SAXException se) {
 			throw new UndeclaredThrowableException(se);
 		}
+		issues.add(clone(pIssue));
 		switch (pIssue.getSeverity()) {
 		  case ERROR:
 			 ++numberOfErrors;
@@ -143,7 +154,36 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 		}
 	}
 
+	/** Creates an immutable clone of the given issue.
+	 * @param pIssue The issue, which is being cloned.
+	 * @return The created issue.
+	 */
+	protected Issue clone(Issue pIssue) {
+		/** Extract immutable information.
+		 */
+		final String rule = pIssue.getRule();
+		final String pkg = pIssue.getPackage();
+		final String uri = pIssue.getPackage();
+		final String errorCode = pIssue.getErrorCode();
+		final String msg = pIssue.getMessage();
+		final Severity severity = pIssue.getSeverity();
+		return new Issue() {
+			@Override
+			public String getRule() { return rule; }
+			@Override
+			public String getPackage() { return pkg; }
+			@Override
+			public String getUri() { return uri; }
+			@Override
+			public String getErrorCode() { return errorCode; }
+			@Override
+			public String getMessage() { return msg; }
+			@Override
+			public Severity getSeverity() { return severity; }
+		};
+	}
+
 	public Result getResult() {
-		return new Result(numberOfOtherIssues, numberOfWarnings, numberOfErrors);
+		return new Result(numberOfOtherIssues, numberOfWarnings, numberOfErrors, issues);
 	}
 }

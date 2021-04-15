@@ -15,18 +15,13 @@ import java.util.function.Consumer;
 
 import org.junit.Test;
 
-import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Binder;
-import com.github.jochenw.afw.core.inject.ComponentFactoryBuilder.Module;
-import com.github.jochenw.afw.core.inject.Scopes;
 import com.github.jochenw.qse.is.core.api.ErrorCodes;
 import com.github.jochenw.qse.is.core.api.IssueConsumer;
-import com.github.jochenw.qse.is.core.api.IssueWriter;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Issue;
 import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 import com.github.jochenw.qse.is.core.api.IssueJsonWriter;
 import com.github.jochenw.qse.is.core.api.Logger;
 import com.github.jochenw.qse.is.core.api.PrintStreamLogger;
-import com.github.jochenw.qse.is.core.scan.IWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.NullWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.SonarWorkspaceScanner;
 import com.github.jochenw.qse.is.core.scan.DefaultWorkspaceScanner;
@@ -141,6 +136,14 @@ public class ScannerTest {
 			scanner.getWorkspace().addListener(ijw);
 			scanner.run();
 		}
+	}
+	@Test
+	public void testTemplateFileViaMain() throws Exception {
+		Main.main(new String[]{"-scanDir", "src/test/resources/packages",
+				  			   "-outFile", "target/unit-tests/templates/result-table.html",
+				  			   "-templateFile", "default:result-table.html",
+				  			   "-templateTitle", "Test scan result",
+				  			   "-rulesFile", "src/main/resources/com/github/jochenw/qse/is/core/rules.xml"});
 	}
 
 	private List<File> findFilesForSonarScanner(final Path path) {

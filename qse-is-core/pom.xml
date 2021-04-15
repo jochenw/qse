@@ -5,7 +5,7 @@
 
   <groupId>com.github.jochenw.qse</groupId>
   <artifactId>qse-is-core</artifactId>
-  <version>0.2.2-SNAPSHOT</version>
+  <version>0.2.1</version>
 
   <name>qse-is-core</name>
   <description>QSE IS (Core module)</description>
