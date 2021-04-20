@@ -20,8 +20,45 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import com.github.jochenw.afw.core.util.Exceptions;
 import com.github.jochenw.qse.is.core.Scanner;
+import com.github.jochenw.qse.is.core.api.IssueConsumer.Severity;
 
 public class IssueWriter implements AutoCloseable, IssueConsumer {
+	public final class IssueBean implements Issue {
+		private final String rule;
+		private final String msg;
+		private final String errorCode;
+		private final Severity severity;
+		private final String pkg;
+		private final String uri;
+
+		public IssueBean(String pRule, String pMsg, String pErrorCode, Severity pSeverity, String pPkg, String pUri) {
+			rule = pRule;
+			msg = pMsg;
+			errorCode = pErrorCode;
+			severity = pSeverity;
+			pkg = pPkg;
+			uri = pUri;
+		}
+
+		@Override
+		public String getRule() { return rule; }
+
+		@Override
+		public String getPackage() { return pkg; }
+
+		@Override
+		public String getUri() { return uri; }
+
+		@Override
+		public String getErrorCode() { return errorCode; }
+
+		@Override
+		public String getMessage() { return msg; }
+
+		@Override
+		public Severity getSeverity() { return severity; }
+	}
+
 	public static class Result implements Scanner.Result {
 		private final int numberOfOtherIssues, numberOfWarnings, numberOfErrors;
 		private final List<Issue> issues;
@@ -167,20 +204,7 @@ public class IssueWriter implements AutoCloseable, IssueConsumer {
 		final String errorCode = pIssue.getErrorCode();
 		final String msg = pIssue.getMessage();
 		final Severity severity = pIssue.getSeverity();
-		return new Issue() {
-			@Override
-			public String getRule() { return rule; }
-			@Override
-			public String getPackage() { return pkg; }
-			@Override
-			public String getUri() { return uri; }
-			@Override
-			public String getErrorCode() { return errorCode; }
-			@Override
-			public String getMessage() { return msg; }
-			@Override
-			public Severity getSeverity() { return severity; }
-		};
+		return new IssueBean(rule, msg, errorCode, severity, pkg, uri);
 	}
 
 	public Result getResult() {

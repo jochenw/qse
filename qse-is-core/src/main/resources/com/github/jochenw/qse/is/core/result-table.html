@@ -7,16 +7,9 @@
       $(document).ready(function() {
           $('#example').DataTable({
         	  data: [
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
-                  ["FooPkg","manifest.v3","MyRule","QSE.003","INFO","Problem description"],
+<% for issue : issues %>
+                  {"${issue.package}", "${issue.uri}", "${issue.rule}", "${issue.errorCode}", "${issue.severity}", "${issue.message}"}
+<% /for %>
         	  ] 
           });
       } );
@@ -35,6 +28,16 @@
             </tr>
         </thead>
         <tbody>
+<% for issue : issues %>
+            <tr>
+                <td>${issue.package}</td>
+                <td>${issue.uri}</td>
+                <td>${issue.rule}</td>
+                <td>${issue.errorCode}</td>
+                <td>${issue.severity}</td>
+                <td>${issue.message}"}
+            </td>
+<% /for %>
         </tbody>
         <tfoot>
             <tr>
