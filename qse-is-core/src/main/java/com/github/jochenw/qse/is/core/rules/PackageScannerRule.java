@@ -7,12 +7,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
 import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
 
 import com.github.jochenw.afw.core.plugins.IPluginRegistry;
+import com.github.jochenw.afw.core.util.Exceptions;
+import com.github.jochenw.afw.core.util.Files;
+import com.github.jochenw.qse.is.core.Scanner;
 import com.github.jochenw.qse.is.core.api.FlowConsumer;
 import com.github.jochenw.qse.is.core.api.IServiceInvocationListener;
 import com.github.jochenw.qse.is.core.api.NodeConsumer;
@@ -22,6 +28,11 @@ import com.github.jochenw.qse.is.core.model.Node;
 import com.github.jochenw.qse.is.core.sax.Sax;
 import com.github.jochenw.qse.is.core.scan.ContextImpl;
 import com.github.jochenw.qse.is.core.scan.PackageFileConsumer;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlParser;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.MapActionListener;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.StepInfo;
+import com.github.jochenw.qse.is.core.stax.flow.FlowXmlVisitor.VisitorException;
 
 
 public class PackageScannerRule extends AbstractRule implements PackageFileConsumer {
@@ -29,11 +40,15 @@ public class PackageScannerRule extends AbstractRule implements PackageFileConsu
 		public void packageStarting(IsPackage pPackage);
 		public void packageStopping(IsPackage pPackage);
 	}
+	public interface FlowXmlVisitorSupplier extends BiFunction<Scanner,FlowConsumer.Context,FlowXmlVisitor> {
+	}
+
 	@Override
 	protected void accept(@Nonnull IPluginRegistry pRegistry) {
 		pRegistry.addExtensionPoint(NodeConsumer.class);
 		pRegistry.addExtensionPoint(FlowConsumer.class);
 		pRegistry.addExtensionPoint(IsPackageListener.class);
+		pRegistry.addExtensionPoint(FlowXmlVisitorSupplier.class);
 		pRegistry.addPlugin(PackageFileConsumer.class, this);
 	}
 
@@ -115,6 +130,16 @@ public class PackageScannerRule extends AbstractRule implements PackageFileConsu
 					if (!flowHandlers.isEmpty()) {
 						Sax.parseTerminable(flowXmlPath, flowHandlers);
 					}
+					final List<FlowXmlVisitorSupplier> visitors = getPluginRegistry().getPlugins(FlowXmlVisitorSupplier.class);
+					visitors.forEach((fv) -> {
+						try (InputStream in = java.nio.file.Files.newInputStream(flowXmlPath)) {
+							final InputSource isource = new InputSource(in);
+							isource.setSystemId(flowXmlPath.toString());
+							FlowXmlParser.parse(isource, fv.apply(getScanner(), ctx));
+						} catch (Throwable t) {
+							throw Exceptions.show(t);
+						}
+					});
 					getPluginRegistry().forEach(FlowConsumer.class, (fc) -> fc.accept(ctx));
 				}
 			}
