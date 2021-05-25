@@ -81,9 +81,9 @@ public class DisabledStepsRule extends AbstractRule {
 			@Override
 			public void endFlow() throws VisitorException {
 				if (numberOfDisabledSteps > 0) {
-					issue(pCtx.getPackage(), pCtx.getFlowLocalPath(), ErrorCodes.DISABLED_STEP,
+					issue(pCtx.getPackage(), pCtx.getNode().getName().getQName(), ErrorCodes.DISABLED_STEP,
 						  "The flow service " + pCtx.getNode().getName().getQName()
-						  + " contains " + numberOfDisabledSteps + " step(s).");
+						  + " contains " + numberOfDisabledSteps + " disabled step(s).");
 				}
 			}
 			

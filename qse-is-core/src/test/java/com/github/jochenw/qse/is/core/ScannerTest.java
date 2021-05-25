@@ -198,6 +198,9 @@ public class ScannerTest {
 				    "The flow service(s) jwi.scratch.missingDependencies:serviceUsingWxConfig"
 				    + " in package JwiScratch seem to be referencing either of the following packages,"
 				    + " none of which is declared as a dependency: WxConfig");
+		assertIssue(issues, Severity.WARN, "JwiScratch", "DisabledStepsRule", ErrorCodes.DISABLED_STEP,
+				    "jwi.scratch.flowParserExample:service1",
+				    "The flow service jwi.scratch.flowParserExample:service1 contains 1 disabled step(s).");
 				    
 		if (pIssueConsumer != null) {
 			/* Some issues may vary, depending on the workspace scanner, because they depend on the order
@@ -234,20 +237,21 @@ public class ScannerTest {
 			           + ", message=" + unexpectedIssue.getMessage(),
 			           unexpectedIssue);
 		}
-		assertEquals(20, issues.size());
+		assertEquals(21, issues.size());
 	}
 
 	private void assertIssue(List<MyIssue> pIssues, Severity pSeverity, String pPackage, String pRule, String pErrorCode, String pPath, String pMessage) {
 		for (Iterator<MyIssue> iter = pIssues.iterator();  iter.hasNext();  ) {
 			final MyIssue issue = iter.next();
 			if (pPackage.equals(issue.getPackage())
-					&&  pErrorCode.equals(issue.getErrorCode())
-					&&  pPath.equals(issue.getUri())
+				&&  pErrorCode.equals(issue.getErrorCode())) {
+				if (pPath.equals(issue.getUri())
 					&&  pRule.equals(issue.getRule())
 					&&  pSeverity == issue.getSeverity()) {
-				if (pMessage.equals(issue.getMessage())) {
-					issue.expected = true;
-					return;
+					if (pMessage.equals(issue.getMessage())) {
+						issue.expected = true;
+						return;
+					}
 				}
 			}
 		}

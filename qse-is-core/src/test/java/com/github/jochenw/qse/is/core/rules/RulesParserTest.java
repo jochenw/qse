@@ -17,7 +17,7 @@ public class RulesParserTest {
 	public void testParseBuiltinRules() {
 		final List<Rule> rules = new ArrayList<>();
 		RulesParser.parseBuiltinRules((r) -> rules.add(r));
-		assertEquals(7, rules.size());
+		assertEquals(8, rules.size());
 		assertRule(rules.get(0), true, PipelineDebugRule.class, Severity.ERROR, "permittedValues", "0,1");
 		assertRule(rules.get(1), true, ForbiddenServicesRule.class, Severity.ERROR, "serviceNames", new String[]{"pub.flow:debugLog"});
 		assertRule(rules.get(2), true, ForbiddenServicesRule.class, Severity.WARN, "serviceNames", new String[] {"pub.list:appendToDocumentList", "pub.list:appendToStringList"});
@@ -28,6 +28,7 @@ public class RulesParserTest {
 		assertRule(rules.get(5), true, StartupServiceRule.class, Severity.ERROR);
 		assertRule(rules.get(6), true, DependencyCheckingRule.class, Severity.WARN, "dependencySpecifications",
 				   new String[] {"WxConfig:^wx.config[\\.\\:].*", "WxLog:^wx.log[\\.\\:].*"});
+		assertRule(rules.get(7), true, DisabledStepsRule.class, Severity.WARN);
 	}
 
 	private void assertRule(Rule pRule, boolean pEnabled, Class<?> pClass, Severity pSeverity, Object... pProperties) {
