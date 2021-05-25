@@ -5,7 +5,7 @@
 
   <groupId>com.github.jochenw.qse</groupId>
   <artifactId>qse-is-core</artifactId>
-  <version>0.2.4-SNAPSHOT</version>
+  <version>0.2.4</version>
 
   <name>qse-is-core</name>
   <description>QSE IS (Core module)</description>
@@ -275,6 +275,6 @@
   	<connection>scm:git:https://github.com/jochenw/qse</connection>
   	<url>https://github.com/jochenw/qse</url>
   	<developerConnection>scm:git:https://github.com/jochenw/qse</developerConnection>
-    <tag>HEAD</tag>
+    <tag>qse-is-core-0.2.4</tag>
   </scm>
 </project>
